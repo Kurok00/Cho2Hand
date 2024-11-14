@@ -1,0 +1,205 @@
+.container {
+  min-height: 100vh;  /* thay height thành min-height */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f5f5f5;
+  width: 100%;
+  overflow-x: hidden; /* ngăn scroll ngang */
+}
+
+.body {
+  max-width: 1000px;  /* tăng max-width lên */
+  width: 100%;        /* thêm width 100% */
+  background-color: #f5f5f5;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 0 10px;    /* thêm padding */
+}
+
+.banner {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border: 5px solid rgb(255, 255, 255);
+  background-color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.category {  
+  border: 5px solid rgb(255, 255, 255);
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.category-grid {
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* Changed to fixed 6 columns */
+  gap: 10px;
+  padding: 5px;
+}
+
+.category-grid a {
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.category-grid a:hover {
+  transform: translateY(-2px);
+  background-color: #f8f8f8;
+}
+
+.category-grid img {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.category-grid span {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #444;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.category ul {
+  display: contents;
+}
+
+.category li {
+  list-style: none;
+  text-align: center;
+}
+
+.category img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.tin-dang {
+  border: 5px solid rgb(255, 255, 255);
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-top: 20px;
+}
+
+.tin-dang-grid {
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* Cố định 4 cột */
+  gap: 15px;
+  padding: 10px;
+}
+
+.tin-dang-grid a {
+  text-align: center;
+  text-decoration: none;
+  color: #333;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  background: white;
+}
+
+.tin-dang-grid a:hover {
+  transform: translateY(-2px);
+  background-color: #f8f8f8;
+}
+
+.tin-dang-grid img {
+  width: 200px;      /* Cố định width */
+  height: 200px;     /* Cố định height tương ứng */
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.tin-dang-grid span {
+  display: block;
+  width: 100%;          /* Đảm bảo text không bị tràn */
+  margin-top: 8px;
+  font-size: 14px;
+  color: #444;
+  text-align: left;     /* Căn l�� trái cho text */
+}
+
+.tin-dang-grid .price {
+  color: #ee4d2d;
+  font-weight: 600;     /* Tăng độ đậm của giá */
+  font-size: 16px;      /* Tăng kích thước chữ giá */
+  margin-top: 6px;
+}
+
+.loading-state,
+.error-state,
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-state {
+  color: red;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-desc {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Add media query for 1080p */
+@media (max-width: 1920px) and (min-width: 1024px) {
+    .body {
+        max-width: 1000px;
+    }
+    
+    .category-grid img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .tin-dang-grid img {
+        width: 180px;
+        height: 180px;
+    }
+}
