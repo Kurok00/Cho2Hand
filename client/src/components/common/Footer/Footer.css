@@ -4,12 +4,12 @@
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    padding: 0 20px;
+    padding: 0 15px;
 }
 
 .footer-section h3 {
@@ -40,4 +40,15 @@
     margin-top: 30px;
     padding-top: 20px;
     border-top: 1px solid #ddd;
+}
+
+@media (max-width: 1920px) and (min-width: 1024px) {
+    .footer-content {
+        gap: 20px;
+        padding: 0 10px;
+    }
+    
+    .footer-section {
+        padding: 0 10px;
+    }
 }
