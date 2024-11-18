@@ -8,6 +8,7 @@ import { adminLogout } from '../../services/adminAuthService.ts';
 
 function AdminDashboard() {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
+	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // New state for confirmation
 	const [activeTab, setActiveTab] = useState('products');
 	const [adminName, setAdminName] = useState(''); // New state for admin's username
 	const navigate = useNavigate();
@@ -25,8 +26,13 @@ function AdminDashboard() {
 		setAdminName(admin.name || admin.username);
 	}, [navigate]);
 
-	const handleLogout = async () => {
+	const handleLogoutClick = () => {
+		setShowLogoutConfirm(true);
+	};
+
+	const handleLogoutConfirm = async () => {
 		try {
+			setShowLogoutConfirm(false);
 			setShowLogoutModal(true);
 			adminLogout();
 			navigate('/admin/auth');
@@ -34,6 +40,10 @@ function AdminDashboard() {
 			console.error('Error logging out:', error);
 			navigate('/admin/auth');
 		}
+	};
+
+	const handleLogoutCancel = () => {
+		setShowLogoutConfirm(false);
 	};
 
 	const renderContent = () => {
@@ -67,10 +77,24 @@ function AdminDashboard() {
 						<FaUsers className="icon" /> Quản lý người dùng
 					</li>
 				</ul>
-				<p className="admin-greeting">Xin chào, {adminName}</p> {/* Display admin's username */}
-				<button className="logout-btn" onClick={handleLogout}>Đăng xuất</button>
+				<div className="sidebar-footer">
+					<p className="admin-greeting">Xin chào, {adminName}</p>
+					<button className="logout-btn" onClick={handleLogoutClick}>Đăng xuất</button>
+				</div>
 			</div>
 			<div className="main-content">
+				{showLogoutConfirm && (
+					<div className="modal-overlay">
+						<div className="modal-content">
+							<h2>Xác nhận đăng xuất</h2>
+							<p>Bạn có chắc chắn muốn đăng xuất?</p>
+							<div className="modal-actions">
+								<button onClick={handleLogoutConfirm}>Đồng ý</button>
+								<button onClick={handleLogoutCancel}>Hủy</button>
+							</div>
+						</div>
+					</div>
+				)}
 				{showLogoutModal && (
 					<div className="logout-modal">
 						<div className="logout-modal-content">

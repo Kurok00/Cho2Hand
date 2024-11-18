@@ -98,37 +98,63 @@ function ProductManagement() {
 
 	const handleEdit = (product) => {
 		console.log('Editing product:', product); // Debugging
-		const productId = product._id; // Use _id consistently
+		const productId = product._id || product.id; // Handle both _id and id fields
 		if (!productId) {
-			console.error('Error: product or product._id is undefined');
+			console.error('Error: product ID is undefined');
 			setError('Lỗi: ID sản phẩm không xác định');
 			return;
 		}
 		setCurrentProduct({
-			_id: productId,
+			_id: productId, // Ensure we always use _id in our state
 			name: product.name,
 			description: product.description,
 			category: product.category,
 			price: product.price,
-			images: product.images,
-			locationId: product.locationId // Use locationId instead of location
+			images: product.images || [],
+			locationId: product.locationId
 		});
 		setShowEditModal(true);
 	};
 
 	const handleSave = async () => {
-		console.log('Saving product:', currentProduct); // Debugging
+		console.log('Saving product:', currentProduct);
+		if (!currentProduct._id) {
+			setError('Lỗi: ID sản phẩm không xác định');
+			return;
+		}
 		try {
 			const productToUpdate = {
-				...currentProduct,
-				userId: currentProduct.userId || "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
-				locationId: currentProduct.locationId || "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
+				name: currentProduct.name,
+				description: currentProduct.description,
+				category: currentProduct.category,
+				price: currentProduct.price,
+				images: currentProduct.images || [],
+				status: "available"
 			};
-			await axios.put(`http://localhost:5000/api/products/${currentProduct._id}`, productToUpdate);
-			setProducts(products.map(product => product._id === currentProduct._id ? productToUpdate : product));
-			setShowEditModal(false);
+
+			const response = await axios.put(
+				`http://localhost:5000/api/products/${currentProduct._id}`, 
+				productToUpdate,
+				{
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}
+			);
+
+			if (response.status === 200) {
+				const updatedProducts = products.map(product => 
+					(product._id === currentProduct._id || product.id === currentProduct._id) 
+						? {...product, ...productToUpdate}
+						: product
+				);
+				setProducts(updatedProducts);
+				setShowEditModal(false);
+				setError('');
+			}
 		} catch (err) {
-			setError('Lỗi khi cập nhật sản phẩm');
+			console.error('Error updating product:', err.response?.data || err.message);
+			setError(err.response?.data?.error || 'Lỗi khi cập nhật sản phẩm');
 		}
 	};
 
@@ -137,8 +163,6 @@ function ProductManagement() {
 		try {
 			const productToAdd = {
 				...newProduct,
-				userId: "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
-				locationId: "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
 				status: "available", // Add a default status
 				category: newProduct.category || "defaultCategory", // Ensure category is provided
 			};
