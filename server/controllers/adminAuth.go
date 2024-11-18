@@ -2,6 +2,7 @@ package controllers
 
 import (
     "context"
+    
     "net/http"
     "cho2hand/models"
     "cho2hand/utils"
@@ -9,6 +10,8 @@ import (
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/mongo"
     "time"
+    
+
 )
 
 type AdminAuthController struct {
@@ -46,7 +49,6 @@ func (ac *AdminAuthController) Register(c *gin.Context) {
     }
     admin.Password = hashedPassword
     admin.CreatedAt = time.Now()
-    admin.Name = c.PostForm("name")
 
     // Save new admin
     result, err := ac.adminCollection.InsertOne(context.Background(), admin)
@@ -67,24 +69,31 @@ func (ac *AdminAuthController) Login(c *gin.Context) {
         return
     }
 
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
     var admin models.Admin
-    err := ac.adminCollection.FindOne(context.Background(), bson.M{
+    err := ac.adminCollection.FindOne(ctx, bson.M{
         "username": loginData.Username,
     }).Decode(&admin)
 
     if err != nil || !utils.CheckPasswordHash(loginData.Password, admin.Password) {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Username hoặc mật khẩu không đúng"})
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": "Username hoặc mật khẩu không đúng",
+            "status": http.StatusUnauthorized,
+        })
         return
     }
 
-    err = utils.SetSession(c, "admin", admin.Username)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi tạo session"})
-        return
-    }
-
+    // Return admin data directly
     c.JSON(http.StatusOK, gin.H{
+        "status": http.StatusOK,
         "message": "Đăng nhập thành công",
+        "admin": gin.H{
+            "id": admin.ID.Hex(), // Convert ObjectID to string
+            "username": admin.Username,
+            "name": admin.Name,
+        },
     })
 }
 
@@ -96,4 +105,28 @@ func (ac *AdminAuthController) Logout(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"message": "Đăng xuất thành công"})
+}
+
+func (ac *AdminAuthController) GetUsername(c *gin.Context) {
+    // Get username from session
+    username, _ := c.Get("admin")
+    usernameStr, ok := username.(string)
+    if !ok {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Not logged in"})
+        return
+    }
+
+    // Find admin by username
+    var admin models.Admin
+    err := ac.adminCollection.FindOne(context.Background(), bson.M{
+        "username": usernameStr,
+    }).Decode(&admin)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin not found"})
+        return
+    }
+    
+    c.JSON(http.StatusOK, gin.H{
+        "name": admin.Name, // Return the name field instead of username
+    })
 }

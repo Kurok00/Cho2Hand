@@ -31,9 +31,29 @@ func uploadHandler(c *gin.Context) {
     })
 }
 
-func SetupRoutes(router *gin.Engine, authController *controllers.AuthController, productController *controllers.ProductController, categoryController *controllers.CategoryController) {
-    // Apply CORS middleware
+func SetupRoutes(router *gin.Engine, authController *controllers.AuthController, 
+    productController *controllers.ProductController,
+    categoryController *controllers.CategoryController,
+    adminController *controllers.AdminAuthController) {
+
+    // Apply CORS middleware to all routes
     router.Use(middleware.CORSMiddleware())
+    
+    // Admin API group
+    adminGroup := router.Group("/api/admin")
+    {
+        // Public admin routes
+        adminGroup.POST("/register", adminController.Register)
+        adminGroup.POST("/login", adminController.Login)
+        
+        // Protected admin routes
+        protected := adminGroup.Group("")
+        protected.Use(middleware.AdminAuthMiddleware())
+        {
+            protected.GET("/username", adminController.GetUsername)
+            protected.POST("/logout", adminController.Logout)
+        }
+    }
 
     // API routes group
     api := router.Group("/api")
@@ -68,6 +88,4 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
             upload.POST("", uploadHandler)
         }
     }
-
-    
 }

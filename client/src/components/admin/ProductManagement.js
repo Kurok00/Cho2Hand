@@ -83,6 +83,11 @@ function ProductManagement() {
 	}, []);
 
 	const handleDelete = async (id) => {
+		if (!id || id.length !== 24) {
+			setError('Invalid product ID');
+			return;
+		}
+
 		try {
 			await axios.delete(`http://localhost:5000/api/products/${id}`);
 			setProducts(products.filter(product => product._id !== id));
@@ -114,8 +119,13 @@ function ProductManagement() {
 	const handleSave = async () => {
 		console.log('Saving product:', currentProduct); // Debugging
 		try {
-			await axios.put(`http://localhost:5000/api/products/${currentProduct._id}`, currentProduct);
-			setProducts(products.map(product => product._id === currentProduct._id ? currentProduct : product));
+			const productToUpdate = {
+				...currentProduct,
+				userId: currentProduct.userId || "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
+				locationId: currentProduct.locationId || "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
+			};
+			await axios.put(`http://localhost:5000/api/products/${currentProduct._id}`, productToUpdate);
+			setProducts(products.map(product => product._id === currentProduct._id ? productToUpdate : product));
 			setShowEditModal(false);
 		} catch (err) {
 			setError('Lỗi khi cập nhật sản phẩm');
@@ -127,7 +137,8 @@ function ProductManagement() {
 		try {
 			const productToAdd = {
 				...newProduct,
-				userId: "defaultUserId", // Add a default userId
+				userId: "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
+				locationId: "60d5ec49f8d2c2a1d4f8e8b5", // Ensure valid ObjectID
 				status: "available", // Add a default status
 				category: newProduct.category || "defaultCategory", // Ensure category is provided
 			};

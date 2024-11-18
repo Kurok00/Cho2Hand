@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminLogin, adminRegister } from '../../services/adminAuthService.ts';
 import './AdminAuth.css';
@@ -9,18 +9,29 @@ function AdminAuth() {
   const [registerData, setRegisterData] = useState({
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    name: '' // Add name to the registerData state
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if already logged in
+    const adminData = localStorage.getItem('adminData');
+    if (adminData) {
+      navigate('/admin/dashboard');
+    }
+  }, [navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await adminLogin(loginData);
-      localStorage.setItem('adminInfo', JSON.stringify(response.data.admin));
-      navigate('/admin/dashboard');
+      if (response.status === 200) {
+        // Redirect after successful login
+        navigate('/admin/dashboard', { replace: true });
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Đăng nhập thất bại');
     }
@@ -35,7 +46,8 @@ function AdminAuth() {
       }
       await adminRegister({
         username: registerData.username,
-        password: registerData.password
+        password: registerData.password,
+        name: registerData.name // Include name in the registration data
       });
       setActiveTab('login');
       setError('');
@@ -107,6 +119,16 @@ function AdminAuth() {
                   placeholder="Nhập tên đăng nhập admin"
                   value={registerData.username}
                   onChange={(e) => setRegisterData({...registerData, username: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Tên</label>
+                <input
+                  type="text"
+                  placeholder="Nhập tên"
+                  value={registerData.name}
+                  onChange={(e) => setRegisterData({...registerData, name: e.target.value})}
                   required
                 />
               </div>

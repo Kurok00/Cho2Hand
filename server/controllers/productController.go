@@ -34,11 +34,20 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 		return
 	}
 
+	// Ensure userId and locationId are valid ObjectIDs
+	if len(product.UserID.Hex()) != 24 || len(product.LocationID.Hex()) != 24 {
+		log.Printf("Invalid user ID or location ID: userID=%s, locationID=%s\n", product.UserID.Hex(), product.LocationID.Hex())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID or location ID"})
+		return
+	}
+
 	// Log the product data for debugging
 	fmt.Printf("Product data received: %+v\n", product)
 
-	product.CreatedAt = time.Now()
-	product.UpdatedAt = time.Now()
+	// Set CreatedAt and UpdatedAt to GMT+7
+	location, _ := time.LoadLocation("Asia/Bangkok")
+	product.CreatedAt = time.Now().In(location)
+	product.UpdatedAt = time.Now().In(location)
 
 	result, err := pc.productCollection.InsertOne(context.Background(), product)
 	if err != nil {
@@ -101,6 +110,13 @@ func (pc *ProductController) GetProduct(c *gin.Context) {
 		return
 	}
 
+	// Ensure userId is a valid ObjectID
+	if product.UserID.IsZero() {
+		fmt.Printf("Invalid user ID in product: %s\n", product.UserID.Hex()) // Log the error
+		c.JSON(http.StatusInternalServerError, gin.H{"status": 500, "message": "Invalid user ID in product"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{"status": 200, "message": "Product fetched successfully", "data": product})
 }
 
@@ -114,7 +130,9 @@ func (pc *ProductController) CreateManyProducts(c *gin.Context) {
 		return
 	}
 
-	now := time.Now()
+	// Set CreatedAt and UpdatedAt to GMT+7
+	location, _ := time.LoadLocation("Asia/Bangkok")
+	now := time.Now().In(location)
 	var documents []interface{}
 	for i := range products {
 		products[i].CreatedAt = now
@@ -145,7 +163,17 @@ func (pc *ProductController) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	product.UpdatedAt = time.Now()
+	// Ensure userId and locationId are valid ObjectIDs
+	if len(product.UserID.Hex()) != 24 || len(product.LocationID.Hex()) != 24 {
+		log.Printf("Invalid user ID or location ID: userID=%s, locationID=%s\n", product.UserID.Hex(), product.LocationID.Hex())
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID or location ID"})
+		return
+	}
+
+	// Set UpdatedAt to GMT+7
+	location, _ := time.LoadLocation("Asia/Bangkok")
+	product.UpdatedAt = time.Now().In(location)
+
 	_, err = pc.productCollection.UpdateOne(context.Background(), bson.M{"_id": objID}, bson.M{"$set": product})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi cập nhật sản phẩm"})
@@ -157,6 +185,11 @@ func (pc *ProductController) UpdateProduct(c *gin.Context) {
 
 func (pc *ProductController) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
+	if len(id) != 24 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+		return
+	}
+
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
@@ -233,4 +266,39 @@ func (pc *ProductController) GetUserProducts(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": 200, "data": products})
+}
+
+func (pc *ProductController) GetProductByID(c *gin.Context) {
+	id := c.Param("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Printf("Invalid product ID: %s, error: %v\n", id, err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+		return
+	}
+
+	var product models.Product
+	err = pc.productCollection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&product)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			log.Printf("Product not found with ID: %s\n", id)
+			c.JSON(http.StatusNotFound, gin.H{"error": "Sản phẩm không tồn tại"})
+			return
+		}
+		log.Printf("Error fetching product with ID: %s, error: %v\n", id, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi lấy sản phẩm"})
+		return
+	}
+
+	// Ensure userId is a valid ObjectID
+	if !product.UserID.IsZero() {
+		if _, err := primitive.ObjectIDFromHex(product.UserID.Hex()); err != nil {
+			log.Printf("Invalid user ID in product: %s\n", product.UserID.Hex())
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID in product"})
+			return
+		}
+	}
+
+	log.Printf("Product fetched successfully with ID: %s\n", id)
+	c.JSON(http.StatusOK, gin.H{"data": product})
 }

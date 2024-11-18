@@ -1,21 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 import { FaList, FaUsers } from 'react-icons/fa'; // Import icons
 import { FcPhoneAndroid } from 'react-icons/fc'; // Import new icon
 import ProductManagement from './ProductManagement'; // Import ProductManagement component
+import { adminLogout } from '../../services/adminAuthService.ts';
 
 function AdminDashboard() {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
 	const [activeTab, setActiveTab] = useState('products');
+	const [adminName, setAdminName] = useState(''); // New state for admin's username
 	const navigate = useNavigate();
 
-	const handleLogout = () => {
-		setShowLogoutModal(true);
-		setTimeout(() => {
-			localStorage.removeItem('adminInfo');
+	useEffect(() => {
+		// Check authentication
+		const adminData = localStorage.getItem('adminData');
+		if (!adminData) {
 			navigate('/admin/auth');
-		}, 3000);
+			return;
+		}
+
+		// Set admin name from stored data
+		const admin = JSON.parse(adminData);
+		setAdminName(admin.name || admin.username);
+	}, [navigate]);
+
+	const handleLogout = async () => {
+		try {
+			setShowLogoutModal(true);
+			adminLogout();
+			navigate('/admin/auth');
+		} catch (error) {
+			console.error('Error logging out:', error);
+			navigate('/admin/auth');
+		}
 	};
 
 	const renderContent = () => {
@@ -49,6 +67,7 @@ function AdminDashboard() {
 						<FaUsers className="icon" /> Quản lý người dùng
 					</li>
 				</ul>
+				<p className="admin-greeting">Xin chào, {adminName}</p> {/* Display admin's username */}
 				<button className="logout-btn" onClick={handleLogout}>Đăng xuất</button>
 			</div>
 			<div className="main-content">
