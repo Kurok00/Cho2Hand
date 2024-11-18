@@ -4,39 +4,33 @@ import (
 	"cho2hand/configs"
 	"cho2hand/controllers"
 	"cho2hand/routes"
-	"cho2hand/utils"
+	"github.com/gin-gonic/gin"
 	"log"
-	"net/http"
-
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-    // Load environment variables
-    if err := godotenv.Load(); err != nil {
-        log.Fatal("Error loading .env file")
-    }
+	// Set up MongoDB connection
+	client, err := configs.ConnectMongoDB()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Initialize Cloudinary
-    if err := utils.InitCloudinary(); err != nil {
-        log.Fatal("Failed to initialize Cloudinary:", err)
-    }
+	// Set the global client variable
+	configs.Client = client
 
-    // Initialize router
-    router := mux.NewRouter()
+	db := client.Database("Cho2Hand")
 
-    // Connect to database
-    client := configs.ConnectDB()
-    collection := configs.GetCollection(client, "products")
+	// Set up controllers
+	authController := controllers.NewAuthController()
+	productController := controllers.NewProductController(db)
+	categoryController := controllers.NewCategoryController(db)
 
-    // Initialize controllers
-    productController := controllers.NewProductController(collection)
+	// Set up Gin router
+	router := gin.Default()
 
-    // Setup routes
-    routes.SetupRoutes(router, productController)
+	// Set up routes
+	routes.SetupRoutes(router, authController, productController, categoryController)
 
-    // Start server
-    log.Printf("Server is running on port 8080")
-    log.Fatal(http.ListenAndServe(":8080", router))
+	// Start the server
+	router.Run(":5000")
 }

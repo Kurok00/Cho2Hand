@@ -1,9 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProducts } from '../../../hooks/useProducts.ts';
 import './Body.css';
 
+interface Category {
+  id: string;
+  name: string;
+  image: string;
+}
+
 const BodyComponent: React.FC = () => {
-  const { products = [], loading, error } = useProducts(); // Provide default empty array
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { products = [], loading: productsLoading, error: productsError, fetchProducts } = useProducts();
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/categories');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.statusText}`);
+        }
+        const result = await response.json();
+
+        if (result?.status === 200 && result.data != null && Array.isArray(result.data)) {
+          setCategories(result.data);
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (productsError) {
+      const timer = setTimeout(() => {
+        fetchProducts();
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [productsError, fetchProducts]);
+
+  const handleCategoryClick = (category: string) => {
+    // Handle category click here
+    console.log(`Selected category: ${category}`);
+  };
+
+  const sortedProducts = products.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
     <div className="container">
@@ -18,70 +66,22 @@ const BodyComponent: React.FC = () => {
           </div>
           
           <div className="category-grid">
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Điện Thoại & Laptop" />
-              <span>Điện Thoại & Laptop</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="PC & Linh Kiện PC" />
-              <span>PC & Linh Kiện PC</span>
-            </a>
-            <a href="#">
-              <img src="accessories.jpg" alt="Phụ Kiện Thông Minh" />
-              <span>Phụ Kiện Thông Minh</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Thời Trang Nam" />
-              <span>Thời Trang Nam</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Thời Trang Nữ" />
-              <span>Thời Trang Nữ</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Mẹ & Bé" />
-              <span>Mẹ & Bé</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Thiết Bị Điện Tử" />
-              <span>Thiết Bị Điện Tử</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Sắc Đẹp" />
-              <span>Sắc Đẹp</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Máy Ảnh & Máy Quay Phim" />
-              <span>Máy Ảnh & Máy Quay Phim</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Sức Khỏe" />
-              <span>Sức Khỏe</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Đồng Hồ" />
-              <span>Đồng Hồ</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp.jpg" alt="Giày Dép Nữ" />
-              <span>Giày Dép Nữ</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp.jpg" alt="Giày Dép Nam" />
-              <span>Giày Dép Nam</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Túi Ví Nữ" />
-              <span>Túi Ví Nữ</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Nước Hoa" />
-              <span>Nước Hoa</span>
-            </a>
-            <a href="#">
-              <img src="https://down-vn.img.susercontent.com/file/31234a27876fb89cd522d7e3db1ba5ca@resize_w320_nl.webp" alt="Nhà Sách Online" />
-              <span>Nhà Sách Online</span>
-            </a>
+            {loading ? (
+              <div className="loading-state">Đang tải danh mục...</div>
+            ) : categories.length > 0 ? (
+              categories.map((category) => (
+                <button 
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category.id)}
+                  className="category-button"
+                >
+                  <img src={category.image} alt={category.name} />
+                  <span>{category.name}</span>
+                </button>
+              ))
+            ) : (
+              <div className="empty-state">Không có danh mục nào</div>
+            )}
           </div>
         </div>
 
@@ -91,27 +91,32 @@ const BodyComponent: React.FC = () => {
           </div>
           
           <div className="tin-dang-grid">
-            {loading ? (
+            {productsLoading ? (
               <div className="loading-state">Đang tải sản phẩm...</div>
-            ) : error ? (
-              <div className="error-state">Lỗi: {error}</div>
-            ) : products && products.length > 0 ? ( // Add null check here
-              products.map(product => (
-                <a key={product.id} href={`/product/${product.id}`} className="product-card">
+            ) : productsError ? (
+              <div className="error-state">Lỗi: {productsError}</div>
+            ) : sortedProducts && sortedProducts.length > 0 ? (
+              sortedProducts.map(product => (
+                <a key={product._id} href={`/product/${product._id}`} className="product-card">
                   <img 
                     src={product.images[0] || '/placeholder.jpg'} 
-                    alt={product.description}
+                    alt={product.name}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/placeholder.jpg'
                     }}
                   />
-                  <span className="product-desc">{product.description}</span>
-                  <span className="price">
-                    {new Intl.NumberFormat('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND'
-                    }).format(product.price)}
-                  </span>
+                  <span className="product-name">{product.name}</span>
+                  <div className="product-info">
+                    <span className="price">
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(product.price)}
+                    </span>
+                    <span className="location">{product.location}</span>
+                  </div>
                 </a>
               ))
             ) : (

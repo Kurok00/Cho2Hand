@@ -1,32 +1,20 @@
 package models
 
-import (
-    "time"
-    "go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
-    ID        primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-    Name      string            `bson:"name" json:"name"`
-    Email     string            `bson:"email" json:"email"`
-    Phone     string            `bson:"phone" json:"phone"`
-    Password  string            `bson:"password" json:"-"`
-    CreatedAt time.Time         `bson:"created_at" json:"created_at"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
+	Username   string             `bson:"username" json:"username"`
+	Password   string             `bson:"password" json:"password"`
+	Email      string             `bson:"email" json:"email"`
+	Phone      string             `bson:"phone" json:"phone"`
+	Name       string             `bson:"name" json:"name"` // Add this line
+	LocationID primitive.ObjectID `bson:"locationId,omitempty" json:"locationId"`
+	CreatedAt  int64              `bson:"createdAt" json:"createdAt"`
+	UpdatedAt  int64              `bson:"updatedAt" json:"updatedAt"`
 }
 
-type LoginRequest struct {
-    Email    string `json:"email"`
-    Password string `json:"password"`
-}
-
-type RegisterRequest struct {
-    Name     string `json:"name"`
-    Email    string `json:"email" binding:"required,email"`
-    Phone    string `json:"phone" binding:"required"`
-    Password string `json:"password" binding:"required,min=6"`
-}
-
-type AuthResponse struct {
-    Token string      `json:"token"`
-    User  interface{} `json:"user"`
+type Login struct {
+    EmailOrPhone string `json:"emailOrPhone"`
+    Password     string `json:"password"`
 }

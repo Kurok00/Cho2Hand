@@ -3,39 +3,43 @@ package configs
 import (
 	"context"
 	"log"
-	"os"
 	"time"
-	"github.com/joho/godotenv"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Client {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+var Client *mongo.Client
+
+func ConnectMongoDB() (*mongo.Client, error) {
+	clientOptions := options.Client().ApplyURI("mongodb+srv://anvnt96:asdqwe123@cluster0.bs2jhhq.mongodb.net/Cho2Hand")
+
+	client, err := mongo.NewClient(clientOptions)
+	if err != nil {
+		log.Printf("Error creating MongoDB client: %v", err)
+		return nil, err
 	}
 
-	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
-	
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, clientOptions)
+	err = client.Connect(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error connecting to MongoDB: %v", err)
+		return nil, err
 	}
 
-	if err = client.Ping(ctx, nil); err != nil {
-		log.Fatal(err)
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Printf("Error pinging MongoDB: %v", err)
+		return nil, err
 	}
 
 	log.Println("Connected to MongoDB!")
-	return client
+	Client = client
+	return client, nil
 }
 
-// Getting database collections
-func GetCollection(client *mongo.Client, collectionName string) *mongo.Collection {
-	// Change "your_database_name" to actual database name
-	collection := client.Database("Cho2Hand").Collection(collectionName)
-	return collection
+func GetCollection(collectionName string) *mongo.Collection {
+	return Client.Database("Cho2Hand").Collection(collectionName)
 }

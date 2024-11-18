@@ -49,11 +49,11 @@ func UploadImage(file *multipart.FileHeader) (string, error) {
 	return uploadResult.SecureURL, nil
 }
 
-// DeleteImage deletes an image from Cloudinary by URL
-func DeleteImage(imageURL string) error {
+// DeleteImage deletes an image from Cloudinary
+func DeleteImage() error {
 	// Extract public ID from URL
 	// This is a simple implementation - you might need to adjust based on your URL structure
-	publicID := extractPublicID(imageURL)
+	publicID := extractPublicID()
 
 	_, err := cld.Upload.Destroy(
 		context.Background(),
@@ -65,7 +65,7 @@ func DeleteImage(imageURL string) error {
 }
 
 // extractPublicID extracts the public ID from a Cloudinary URL
-func extractPublicID(imageURL string) string {
+func extractPublicID() string {
 	// This is a basic implementation
 	// You might need to adjust this based on your actual URL structure
 	// Example URL: https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/cho2hand/image.jpg

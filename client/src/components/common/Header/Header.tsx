@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart, faSearch, faUser, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
-import { authService } from '../../../services/auth.service.ts';
+import { login, register } from '../../../services/authServices.ts';
 
 const Header: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
-    const [loginData, setLoginData] = useState({ email: '', password: '' });
+    const [loginData, setLoginData] = useState({ emailOrPhone: '', password: '' });
     const [registerData, setRegisterData] = useState({
         name: '',
         email: '',
@@ -18,24 +18,47 @@ const Header: React.FC = () => {
         confirmPassword: ''
     });
     const [error, setError] = useState('');
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }, [isDarkMode]);
+
+    useEffect(() => {
+        // Check for user in localStorage on component mount
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        
+
         try {
-            if (!loginData.email || !loginData.password) {
+            if (!loginData.emailOrPhone || !loginData.password) {
                 setError('Vui lòng điền đầy đủ thông tin');
                 return;
             }
 
-            const response = await authService.login(loginData);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
-            setShowLoginModal(false);
-            window.location.reload(); // Refresh to update UI
-        } catch (err: any) {
-            setError(err.message || 'Đăng nhập thất bại');
+            const response = await login(loginData);
+            console.log('Login response:', response.data); // Debug log
+
+            if (response.data && response.data.user && response.data.user.name) {
+                const userData = response.data.user;
+                localStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+                setShowLoginModal(false);
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
     };
 
@@ -54,15 +77,43 @@ const Header: React.FC = () => {
                 return;
             }
 
-            const response = await authService.register(registerData);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
-            setShowRegisterModal(false);
-            window.location.reload();
-        } catch (err: any) {
-            setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+            const response = await register(registerData);
+            if (response.data) {
+                localStorage.setItem('user', JSON.stringify(response.data));
+                setShowRegisterModal(false);
+                window.location.reload();
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Đăng ký thất bại. Vui lòng thử lại.');
         }
     };
+
+    const handleCategorySelect = (categoryId: string) => {
+        // Handle category selection
+        console.log(`Selected category: ${categoryId}`);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        window.location.reload();
+    };
+
+    const handleUserMenuClick = () => {
+        setShowUserDropdown(!showUserDropdown);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu && !userMenu.contains(event.target as Node)) {
+                setShowUserDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
         <>
@@ -77,7 +128,7 @@ const Header: React.FC = () => {
                             <FontAwesomeIcon icon={faBars} className="menu-bars-icon" />
                             <span className="nav-text" style={{ color: 'white' }}>Danh mục</span>
                             <div className="dropdown">
-                                <a href="#category1">Category 1</a>
+                                <button className="dropdown-item" onClick={() => handleCategorySelect('category1')}>Category 1</button>
                                 <a href="#category2">Category 2</a>
                                 <a href="#category3">Category 3</a>
                             </div>
@@ -106,15 +157,43 @@ const Header: React.FC = () => {
                         <span className="icon-badge">3</span>
                         <span className="icon-tooltip">Giỏ hàng</span>
                     </button>
-                    <button className="auth-btn login-btn" onClick={() => setShowLoginModal(true)}>
-                        <FontAwesomeIcon icon={faSignInAlt} className="auth-icon" />
-                        Đăng nhập
+
+                    {user ? (
+                        <div className="user-menu">
+                            <button 
+                                className="user-btn" 
+                                onClick={handleUserMenuClick}
+                            >
+                                <FontAwesomeIcon icon={faUser} className="auth-icon" />
+                                <span>Xin chào, {user.name || "Khách"}</span>  
+                            </button>
+                            {showUserDropdown && (
+                                <div className="user-dropdown">
+                                    <a href="/profile">Tài khoản của tôi</a>
+                                    <a href="/orders">Đơn hàng</a>
+                                    <button onClick={handleLogout}>
+                                        <FontAwesomeIcon icon={faSignOutAlt} />
+                                        Đăng xuất
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <>
+                            <button className="auth-btn login-btn" onClick={() => setShowLoginModal(true)}>
+                                <FontAwesomeIcon icon={faSignInAlt} className="auth-icon" />
+                                Đăng nhập
+                            </button>
+                            <button className="auth-btn register-btn" onClick={() => setShowRegisterModal(true)}>
+                                <FontAwesomeIcon icon={faUserPlus} className="auth-icon" />
+                                Đăng ký
+                            </button>
+                        </>
+                    )}
+
+                    <button className="icon-btn" onClick={() => setIsDarkMode(!isDarkMode)}>
+                        <FontAwesomeIcon icon={isDarkMode ? faSun : faMoon} />
                     </button>
-                    <button className="auth-btn register-btn" onClick={() => setShowRegisterModal(true)}>
-                        <FontAwesomeIcon icon={faUserPlus} className="auth-icon" />
-                        Đăng ký
-                    </button>
-                    <button className="post-btn">ĐĂNG TIN</button>
                 </div>
             </header>
 
@@ -131,13 +210,14 @@ const Header: React.FC = () => {
                             <form onSubmit={handleLogin}>
                                 {error && <div className="error-message">{error}</div>}
                                 <div className="form-group">
-                                    <label>Email/Số điện thoại</label>
+                                    <label>Email hoặc Số điện thoại</label>
                                     <input 
                                         type="text" 
-                                        value={loginData.email}
-                                        onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                                        value={loginData.emailOrPhone}
+                                        onChange={(e) => setLoginData({...loginData, emailOrPhone: e.target.value})}
                                         placeholder="Nhập email hoặc số điện thoại" 
                                     />
+                                    <small className="form-hint">Sử dụng email hoặc số điện thoại để đăng nhập</small>
                                 </div>
                                 <div className="form-group">
                                     <label>Mật khẩu</label>
@@ -154,7 +234,7 @@ const Header: React.FC = () => {
                                     </button>
                                 </div>
                                 <div className="form-footer">
-                                    <a href="#">Quên mật khẩu?</a>
+                                    <a href="/forgot-password">Quên mật khẩu?</a>
                                     <span>Chưa có tài khoản? <button onClick={() => {
                                         setShowLoginModal(false);
                                         setShowRegisterModal(true);
@@ -241,7 +321,6 @@ const Header: React.FC = () => {
             )}
         </div>
         </>
-        
     );
 };
 
