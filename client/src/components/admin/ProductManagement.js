@@ -22,6 +22,9 @@ function ProductManagement() {
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
 	const [statusFilter, setStatusFilter] = useState('available'); // Add status filter state
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
+	const [productToChangeStatus, setProductToChangeStatus] = useState(null);
+	const [newStatus, setNewStatus] = useState('');
 	
 	const [currentProduct, setCurrentProduct] = useState({
 		_id: '',
@@ -83,39 +86,43 @@ function ProductManagement() {
 		fetchCategories();
 	}, [statusFilter]);
 
-	const handleStatusChange = async (productId, newStatus) => {
+	const handleStatusChange = async () => {
+		if (!productToChangeStatus) return;
 		try {
-			console.log(`Attempting to update product ${productId} status to ${newStatus}`);
-			
-			const endpoint = `http://localhost:5000/api/products/${productId}/status`;
-			console.log('Making request to:', endpoint);
-			
+			const endpoint = `http://localhost:5000/api/products/${productToChangeStatus._id}/status`;
 			const response = await axios.put(
 				endpoint,
 				{ status: newStatus },
-				{
-					headers: { 'Content-Type': 'application/json' }
-				}
+				{ headers: { 'Content-Type': 'application/json' } }
 			);
-			
 			if (response.status === 200) {
-				console.log('Status update successful:', response.data);
-				setProducts(products.map(product => 
-					product._id === productId 
-						? { ...product, status: newStatus }
-						: product
-				));
 				setError('');
+				setShowConfirmModal(false);
+				// Reload products after status change
+				const fetchProducts = async () => {
+					try {
+						const response = await axios.get(`http://localhost:5000/api/products?status=${statusFilter}`);
+						const sortedProducts = Array.isArray(response.data.data) ? response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
+						setProducts(sortedProducts);
+					} catch (err) {
+						setError('Lỗi khi tải sản phẩm');
+						setProducts([]);
+					} finally {
+						setLoading(false);
+					}
+				};
+				fetchProducts();
 			}
 		} catch (err) {
-			console.error('Status update failed:', {
-				error: err,
-				endpoint: `http://localhost:5000/api/products/${productId}/status`,
-				requestBody: { status: newStatus }
-			});
 			const errorMessage = err.response?.data?.error || 'Lỗi khi cập nhật trạng thái sản phẩm';
 			setError(errorMessage);
 		}
+	};
+
+	const handleStatusButtonClick = (product, status) => {
+		setProductToChangeStatus(product);
+		setNewStatus(status);
+		setShowConfirmModal(true);
 	};
 
 	const handleEdit = (product) => {
@@ -258,8 +265,8 @@ function ProductManagement() {
 									<td>
 										<button 
 											className="status-btn"
-											onClick={() => handleStatusChange(
-												product._id, 
+											onClick={() => handleStatusButtonClick(
+												product, 
 												product.status === 'available' ? 'sold' : 'available'
 											)}
 										>
@@ -271,6 +278,15 @@ function ProductManagement() {
 							))}
 						</tbody>
 					</table>
+					{showConfirmModal && (
+						<div className="confirm-modal">
+							<div className="confirm-modal-content">
+								<p>Bạn có chắc chắn muốn thay đổi trạng thái sản phẩm này?</p>
+								<button onClick={handleStatusChange}>Xác nhận</button>
+								<button onClick={() => setShowConfirmModal(false)}>Hủy</button>
+							</div>
+						</div>
+					)}
 					{showEditModal && (
 						<div className="edit-modal">
 							<div className="edit-modal-content">
