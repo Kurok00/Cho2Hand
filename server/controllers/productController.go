@@ -47,32 +47,44 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"id": result.InsertedID})
 }
 
+// Modify GetProducts to add status filter
 func (pc *ProductController) GetProducts(c *gin.Context) {
-	var products []models.Product
-	cursor, err := pc.productCollection.Find(context.Background(), bson.M{})
-	if err != nil {
-		log.Printf("Error fetching products: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi lấy danh sách sản phẩm"})
-		return
-	}
-	defer cursor.Close(context.Background())
+    status := c.Query("status") // Get status from query parameter
+    filter := bson.M{}
+    if (status != "") {
+        filter["status"] = status
+    }
 
-	location, _ := time.LoadLocation("Asia/Bangkok")
-	for cursor.Next(context.Background()) {
-		var product models.Product
-		cursor.Decode(&product)
-		// Convert times to GMT+7
-		product.CreatedAt = product.CreatedAt.In(location)
-		product.UpdatedAt = product.UpdatedAt.In(location)
-		products = append(products, product)
-	}
+    cursor, err := pc.productCollection.Find(context.Background(), filter)
+    if err != nil {
+        log.Printf("Error fetching products: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi lấy danh sách sản phẩm"})
+        return
+    }
+    defer cursor.Close(context.Background())
 
-	if len(products) == 0 {
-		c.JSON(http.StatusOK, gin.H{"status": 200, "data": []models.Product{}})
-		return
-	}
+    var products []models.Product // Initialize products slice
+    location, _ := time.LoadLocation("Asia/Bangkok")
 
-	c.JSON(http.StatusOK, gin.H{"status": 200, "data": products})
+    for cursor.Next(context.Background()) {
+        var product models.Product
+        if err := cursor.Decode(&product); err != nil { // Add error handling for Decode
+            log.Printf("Error decoding product: %v", err)
+            continue
+        }
+        // Convert times to GMT+7
+        product.CreatedAt = product.CreatedAt.In(location)
+        product.UpdatedAt = product.UpdatedAt.In(location)
+        products = append(products, product)
+    }
+
+    if err := cursor.Err(); err != nil { // Add cursor error checking
+        log.Printf("Cursor error: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi đọc dữ liệu sản phẩm"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"status": 200, "data": products})
 }
 
 func (pc *ProductController) GetProduct(c *gin.Context) {
@@ -164,26 +176,61 @@ func (pc *ProductController) UpdateProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật sản phẩm thành công"})
 }
 
-func (pc *ProductController) DeleteProduct(c *gin.Context) {
-	id := c.Param("id")
-	if len(id) != 24 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
-		return
-	}
+// Replace DeleteProduct with UpdateProductStatus
+func (pc *ProductController) UpdateProductStatus(c *gin.Context) {
+    id := c.Param("id")
+    log.Printf("Attempting to update status for product ID: %s", id)
+    
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        log.Printf("Invalid ID format: %v", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
+        return
+    }
 
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID không hợp lệ"})
-		return
-	}
+    var statusUpdate struct {
+        Status string `json:"status" binding:"required"`
+    }
+    if err := c.ShouldBindJSON(&statusUpdate); err != nil {
+        log.Printf("Invalid request body: %v", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	_, err = pc.productCollection.DeleteOne(context.Background(), bson.M{"_id": objID})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi xóa sản phẩm"})
-		return
-	}
+    // Validate status
+    if statusUpdate.Status != "available" && statusUpdate.Status != "sold" {
+        log.Printf("Invalid status value: %s", statusUpdate.Status)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Trạng thái không hợp lệ"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{"message": "Xóa sản phẩm thành công"})
+    // Update product status
+    location, _ := time.LoadLocation("Asia/Bangkok")
+    update := bson.M{
+        "$set": bson.M{
+            "status":     statusUpdate.Status,
+            "updated_at": time.Now().In(location),
+        },
+    }
+
+    result, err := pc.productCollection.UpdateOne(context.Background(), bson.M{"_id": objID}, update)
+    if err != nil {
+        log.Printf("Database error: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi cập nhật trạng thái sản phẩm"})
+        return
+    }
+
+    if result.ModifiedCount == 0 {
+        log.Printf("No document found with ID: %s", id)
+        c.JSON(http.StatusNotFound, gin.H{"error": "Không tìm thấy sản phẩm"})
+        return
+    }
+
+    log.Printf("Successfully updated status for product ID: %s", id)
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Cập nhật trạng thái thành công",
+        "status": statusUpdate.Status,
+    })
 }
 
 func (pc *ProductController) GetProductsByCategory(c *gin.Context) {

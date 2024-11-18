@@ -21,6 +21,7 @@ function ProductManagement() {
 	const [error, setError] = useState(null);
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [showAddModal, setShowAddModal] = useState(false);
+	const [statusFilter, setStatusFilter] = useState('available'); // Add status filter state
 	
 	const [currentProduct, setCurrentProduct] = useState({
 		_id: '',
@@ -52,7 +53,7 @@ function ProductManagement() {
 	useEffect(() => {
 		const fetchProducts = async () => {
 			try {
-				const response = await axios.get('http://localhost:5000/api/products');
+				const response = await axios.get(`http://localhost:5000/api/products?status=${statusFilter}`);
 				const sortedProducts = Array.isArray(response.data.data) ? response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : []; // Ensure products is an array and sort by creation time
 				setProducts(sortedProducts);
 			} catch (err) {
@@ -80,19 +81,40 @@ function ProductManagement() {
 
 		fetchProducts();
 		fetchCategories();
-	}, []);
+	}, [statusFilter]);
 
-	const handleDelete = async (id) => {
-		if (!id || id.length !== 24) {
-			setError('Invalid product ID');
-			return;
-		}
-
+	const handleStatusChange = async (productId, newStatus) => {
 		try {
-			await axios.delete(`http://localhost:5000/api/products/${id}`);
-			setProducts(products.filter(product => product._id !== id));
+			console.log(`Attempting to update product ${productId} status to ${newStatus}`);
+			
+			const endpoint = `http://localhost:5000/api/products/${productId}/status`;
+			console.log('Making request to:', endpoint);
+			
+			const response = await axios.put(
+				endpoint,
+				{ status: newStatus },
+				{
+					headers: { 'Content-Type': 'application/json' }
+				}
+			);
+			
+			if (response.status === 200) {
+				console.log('Status update successful:', response.data);
+				setProducts(products.map(product => 
+					product._id === productId 
+						? { ...product, status: newStatus }
+						: product
+				));
+				setError('');
+			}
 		} catch (err) {
-			setError('Lỗi khi xóa sản phẩm');
+			console.error('Status update failed:', {
+				error: err,
+				endpoint: `http://localhost:5000/api/products/${productId}/status`,
+				requestBody: { status: newStatus }
+			});
+			const errorMessage = err.response?.data?.error || 'Lỗi khi cập nhật trạng thái sản phẩm';
+			setError(errorMessage);
 		}
 	};
 
@@ -191,6 +213,15 @@ function ProductManagement() {
 		<div className="product-management">
 			<h1>Quản lý sản phẩm</h1>
 			<button className="add-btn" onClick={() => setShowAddModal(true)}>Thêm sản phẩm</button>
+			<div className="filters">
+                <select 
+                    value={statusFilter} 
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="available">Sản phẩm đang bán</option>
+                    <option value="sold">Sản phẩm đã bán</option>
+                </select>
+            </div>
 			{loading ? (
 				<p>Đang tải...</p>
 			) : error ? (
@@ -205,6 +236,7 @@ function ProductManagement() {
 								<th>Mô tả</th>
 								<th>Giá</th>
 								<th>Danh mục</th>
+								<th>Trạng thái</th>
 								<th>Hành động</th>
 							</tr>
 						</thead>
@@ -222,9 +254,18 @@ function ProductManagement() {
 									<td>{product.description}</td>
 									<td>{product.price}</td>
 									<td>{product.category}</td>
+									<td>{product.status === 'available' ? 'Đang bán' : 'Đã bán'}</td>
 									<td>
+										<button 
+											className="status-btn"
+											onClick={() => handleStatusChange(
+												product._id, 
+												product.status === 'available' ? 'sold' : 'available'
+											)}
+										>
+											{product.status === 'available' ? 'Đánh dấu đã bán' : 'Đánh dấu còn bán'}
+										</button>
 										<button className="edit-btn" onClick={() => handleEdit(product)}>Sửa</button>
-										<button className="delete-btn" onClick={() => handleDelete(product._id)}>Xóa</button>
 									</td>
 								</tr>
 							))}

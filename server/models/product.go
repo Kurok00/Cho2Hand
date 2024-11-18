@@ -13,7 +13,7 @@ type Product struct {
     Category    string             `bson:"category" json:"category"`
     Price       int                `bson:"price" json:"price"`
     Images      []string           `bson:"images" json:"images"`
-    Status      string             `bson:"status" json:"status"`
+    Status      string             `bson:"status" json:"status" binding:"required,oneof=available sold"`
     CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
     UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }

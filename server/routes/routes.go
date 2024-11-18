@@ -73,7 +73,7 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
             products.POST("", productController.CreateProduct)
             products.POST("/batch", productController.CreateManyProducts)
             products.PUT("/:id", productController.UpdateProduct)
-            products.DELETE("/:id", productController.DeleteProduct)
+            // products.DELETE("/:id", productController.DeleteProduct)
         }
 
         // Categories routes
@@ -88,4 +88,7 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
             upload.POST("", uploadHandler)
         }
     }
+
+    // Replace DELETE endpoint with PUT for status update
+    router.PUT("/api/products/:id/status", productController.UpdateProductStatus)
 }
