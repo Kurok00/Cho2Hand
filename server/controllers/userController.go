@@ -347,7 +347,7 @@ func (uc *UserController) Register(c *gin.Context) {
 
   admin.ID = primitive.NewObjectID()
   admin.CreatedAt = time.Now()
-  admin.UpdatedAt = time.now()
+  admin.UpdatedAt = time.Now()
   admin.Status = "active" // Set default status
 
   _, err = uc.adminCollection.InsertOne(context.Background(), admin)
