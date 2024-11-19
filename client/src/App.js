@@ -4,8 +4,9 @@ import Header from './components/common/Header/Header.tsx';
 import Body from './components/common/Body/Body.tsx';
 import Footer from './components/common/Footer/Footer.tsx';
 import AdminAuth from './components/admin/AdminAuth';
-import AdminDashboard from './components/admin/AdminDashboard';
+import AdminSidebar from './components/admin/AdminSidebar.js';
 import UserHome from './pages/UserHome';
+import CategoryManagement from './components/admin/CategoryManagement';
 import './App.css';
 
 function App() {
@@ -17,7 +18,8 @@ function App() {
       {!isAdminRoute && <Header />}
       <Routes>
         <Route path="/admin/auth" element={<AdminAuth />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminSidebar />} />
+        <Route path="/admin/categories" element={<CategoryManagement />} />
         <Route path="/admin" element={<Navigate to="/admin/auth" />} />
         <Route path="/" element={<UserHome />} />
       </Routes>

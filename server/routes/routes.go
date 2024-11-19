@@ -5,30 +5,46 @@ import (
     "cho2hand/middleware"
     "cho2hand/utils" // Ensure this import is correct
     "github.com/gin-gonic/gin"
+    "net/http"
+    
+    "fmt"
+    "log"
 )
 
-// UploadHandler handles file uploads using Gin
+// Simple upload handler with better error handling
 func uploadHandler(c *gin.Context) {
+    // Initialize Cloudinary
+    if err := utils.InitCloudinary(); err != nil {
+        log.Printf("Failed to initialize Cloudinary: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": fmt.Sprintf("Cloudinary initialization failed: %v", err),
+        })
+        return
+    }
+
     file, err := c.FormFile("image")
     if err != nil {
-        c.JSON(400, gin.H{
-            "error": "No file uploaded",
+        log.Printf("File upload error: %v\n", err)
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": fmt.Sprintf("File upload error: %v", err),
         })
         return
     }
 
-    // Upload to Cloudinary
-    imageURL, err := utils.UploadImage(file)
+    log.Printf("Processing file: %s, size: %d\n", file.Filename, file.Size)
+
+    // Upload to Cloudinary with duplicate detection
+    url, err := utils.UploadImage(file)
     if err != nil {
-        c.JSON(500, gin.H{
-            "error": err.Error(),
+        log.Printf("Upload failed: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": fmt.Sprintf("Failed to upload: %v", err),
         })
         return
     }
 
-    c.JSON(200, gin.H{
-        "url": imageURL,
-    })
+    log.Printf("Upload successful, URL: %s\n", url)
+    c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
 func SetupRoutes(router *gin.Engine, authController *controllers.AuthController, 
@@ -76,17 +92,57 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
             // products.DELETE("/:id", productController.DeleteProduct)
         }
 
-        // Categories routes
-        categories := api.Group("/categories")
-        {
-            categories.GET("", categoryController.GetCategories)
-        }
+        // Categories routes with complete CRUD operations
+        api.Group("/categories").
+            GET("", categoryController.GetCategories).
+            POST("", categoryController.CreateCategory).
+            PUT("/:id", categoryController.UpdateCategory).    // Make sure this line exists
+            DELETE("/:id", categoryController.DeleteCategory)
 
-        // Upload routes
-        upload := api.Group("/upload")
-        {
-            upload.POST("", uploadHandler)
-        }
+        // Update upload route with better duplicate detection
+        api.POST("/upload", func(c *gin.Context) {
+            file, err := c.FormFile("image")
+            if err != nil {
+                log.Printf("Error getting form file: %v", err)
+                c.JSON(http.StatusBadRequest, gin.H{
+                    "error": fmt.Sprintf("Failed to get file: %v", err),
+                })
+                return
+            }
+
+            // Validate file size (max 10MB)
+            if file.Size > 10<<20 {
+                c.JSON(http.StatusBadRequest, gin.H{
+                    "error": "File too large (max 10MB)",
+                })
+                return
+            }
+
+            // Initialize Redis for caching
+            if err := utils.InitRedis(); err != nil {
+                log.Printf("Warning: Redis initialization failed: %v", err)
+                // Continue without Redis - not critical
+            }
+
+            // Kiểm tra Redis trước khi upload
+            if !utils.CheckRedisConnection() {
+                log.Println("Warning: Redis không hoạt động, tiếp tục mà không có cache")
+            } else {
+                log.Println("Redis đang hoạt động, sẽ sử dụng cache")
+            }
+
+            // Upload with duplicate detection
+            imageURL, err := utils.UploadImage(file)
+            if err != nil {
+                log.Printf("Upload error: %v", err)
+                c.JSON(http.StatusInternalServerError, gin.H{
+                    "error": fmt.Sprintf("Upload failed: %v", err),
+                })
+                return
+            }
+
+            c.JSON(http.StatusOK, gin.H{"url": imageURL})
+        })
     }
 
     // Replace DELETE endpoint with PUT for status update

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './AdminDashboard.css';
+import { useNavigate, Link } from 'react-router-dom';
+import './AdminSidebar.css';
 import { FaList, FaUsers } from 'react-icons/fa'; // Import icons
 import { FcPhoneAndroid } from 'react-icons/fc'; // Import new icon
 import ProductManagement from './ProductManagement'; // Import ProductManagement component
 import { adminLogout } from '../../services/adminAuthService.ts';
+import CategoryManagement from './CategoryManagement';
 
 function AdminDashboard() {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -51,7 +52,7 @@ function AdminDashboard() {
 			case 'products':
 				return <ProductManagement />; // Render ProductManagement component
 			case 'categories':
-				return <div>Quản lý danh mục</div>;
+				return <CategoryManagement />;  // Changed from div to component
 			case 'users':
 				return <div>Quản lý người dùng</div>;
 			default:
