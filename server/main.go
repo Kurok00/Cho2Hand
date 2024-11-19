@@ -5,13 +5,23 @@ import (
 	"cho2hand/controllers"
 	"cho2hand/middleware"
 	"cho2hand/routes"
-	
-	
-	"github.com/gin-gonic/gin"
 	"log"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// Debug: Print the MONGO_URI environment variable
+	log.Println("MONGO_URI:", os.Getenv("MONGO_URI"))
+
 	// Set up MongoDB connection
 	client, err := configs.ConnectMongoDB()
 	if err != nil {

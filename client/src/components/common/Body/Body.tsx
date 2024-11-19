@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import React, { useState, useEffect } from 'react';
 import { useProducts } from '../../../hooks/useProducts.ts';
 import './Body.css';
@@ -16,7 +17,11 @@ const BodyComponent: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories');
+        console.log('Fetching categories...');
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        console.log('API URL:', apiUrl); // Log the API URL
+        const response = await fetch(`${apiUrl}/api/categories`);
+        console.log('Categories response:', response);
         if (!response.ok) {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
@@ -29,6 +34,7 @@ const BodyComponent: React.FC = () => {
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
+        setCategories([]); // Ensure categories is an array
       } finally {
         setLoading(false);
       }

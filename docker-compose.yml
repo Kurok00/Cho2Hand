@@ -1,34 +1,52 @@
-# docker-compose.yml
-version: '3.8'
 services:
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
-
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mongodb
-      - redis
-
-  client:
-    build:
+  frontend:
+    build: 
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3000" # Change the host port to 3001
+    environment:
+      # - REACT_APP_API_URL=http://backend:5000
+      - REACT_APP_API_URL=http://localhost:5000 # Change the API URL to localhost
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    env_file:
+      - ./client/.env
+
+  backend:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: cho2hand-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb+srv://anvnt96:asdqwe123@cluster0.bs2jhhq.mongodb.net/Cho2Hand
+      - REDIS_URI=redis:6379
+    volumes:
+      - ./server:/app
+      - /app/go/pkg/mod
+    depends_on:
+      - redis
+    env_file:
+      - ./server/.env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  mongodb_data:
+  redis_data:
