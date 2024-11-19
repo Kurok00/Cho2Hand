@@ -1,27 +1,28 @@
 package controllers
 
 import (
-    "context"
-    
-    "net/http"
-    "cho2hand/models"
-    "cho2hand/utils"
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "go.mongodb.org/mongo-driver/mongo"
-    "time"
-    
-
+	"context"
+	"net/http"
+	"cho2hand/models"
+	"cho2hand/utils"
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"time"
+	
+	
 )
 
 type AdminAuthController struct {
-    adminCollection *mongo.Collection
+	adminService    *models.AdminService
+	adminCollection *mongo.Collection // Add this line
 }
 
 func NewAdminAuthController(db *mongo.Database) *AdminAuthController {
-    return &AdminAuthController{
-        adminCollection: db.Collection("admins"),
-    }
+	return &AdminAuthController{
+		adminService:    models.NewAdminService(db),
+		adminCollection: db.Collection("admins"), // Add this line
+	}
 }
 
 func (ac *AdminAuthController) Register(c *gin.Context) {
@@ -108,10 +109,9 @@ func (ac *AdminAuthController) Logout(c *gin.Context) {
 }
 
 func (ac *AdminAuthController) GetUsername(c *gin.Context) {
-    // Get username from session
-    username, _ := c.Get("admin")
-    usernameStr, ok := username.(string)
-    if !ok {
+    // Get username from header
+    username := c.GetHeader("X-Admin-Username")
+    if username == "" {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Not logged in"})
         return
     }
@@ -119,7 +119,7 @@ func (ac *AdminAuthController) GetUsername(c *gin.Context) {
     // Find admin by username
     var admin models.Admin
     err := ac.adminCollection.FindOne(context.Background(), bson.M{
-        "username": usernameStr,
+        "username": username,
     }).Decode(&admin)
     if err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "Admin not found"})

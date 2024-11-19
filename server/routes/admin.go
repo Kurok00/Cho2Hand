@@ -2,7 +2,6 @@ package routes
 
 import (
     "cho2hand/controllers"
-    "cho2hand/middlewares"
     "github.com/gin-gonic/gin"
 )
 
@@ -13,8 +12,7 @@ func AdminRoutes(router *gin.Engine, adminAuth *controllers.AdminAuthController)
         admin.POST("/login", adminAuth.Login)
         
         // Protected routes would go here
-        protected := admin.Group("")
-        protected.Use(middlewares.AdminAuthMiddleware())
+        admin.Group("") // Remove the variable assignment
         {
             // Add protected admin routes here later
         }

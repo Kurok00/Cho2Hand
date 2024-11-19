@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminLogin, adminRegister } from '../../services/adminAuthService.ts';
 import './AdminAuth.css';
+import axios from 'axios';
+
 
 function AdminAuth() {
   const [activeTab, setActiveTab] = useState('login');

@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './AdminSidebar.css';
-import { FaList, FaUsers } from 'react-icons/fa'; // Import icons
-import { FcPhoneAndroid } from 'react-icons/fc'; // Import new icon
-import ProductManagement from './ProductManagement'; // Import ProductManagement component
+import { FaList, FaUsers } from 'react-icons/fa';
+import { FcPhoneAndroid } from 'react-icons/fc';
+import ProductManagement from './ProductManagement';
 import { adminLogout } from '../../services/adminAuthService.ts';
 import CategoryManagement from './CategoryManagement';
+import UserManagement from './UserManagement';
 
 function AdminDashboard() {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);
-	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // New state for confirmation
+	const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 	const [activeTab, setActiveTab] = useState('products');
-	const [adminName, setAdminName] = useState(''); // New state for admin's username
+	const [adminName, setAdminName] = useState('');
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		// Check authentication
 		const adminData = localStorage.getItem('adminData');
 		if (!adminData) {
 			navigate('/admin/auth');
 			return;
 		}
 
-		// Set admin name from stored data
 		const admin = JSON.parse(adminData);
 		setAdminName(admin.name || admin.username);
 	}, [navigate]);
@@ -39,7 +38,6 @@ function AdminDashboard() {
 			navigate('/admin/auth');
 		} catch (error) {
 			console.error('Error logging out:', error);
-			navigate('/admin/auth');
 		}
 	};
 
@@ -50,11 +48,11 @@ function AdminDashboard() {
 	const renderContent = () => {
 		switch (activeTab) {
 			case 'products':
-				return <ProductManagement />; // Render ProductManagement component
+				return <ProductManagement />;
 			case 'categories':
-				return <CategoryManagement />;  // Changed from div to component
+				return <CategoryManagement />;
 			case 'users':
-				return <div>Quản lý người dùng</div>;
+				return <UserManagement />;
 			default:
 				return null;
 		}
@@ -68,15 +66,24 @@ function AdminDashboard() {
 					<h1>Admin Dashboard</h1>
 				</div>
 				<ul className="sidebar-menu">
-					<li onClick={() => setActiveTab('products')}>
-						<FcPhoneAndroid className="icon" /> Quản lý sản phẩm
-					</li>
-					<li onClick={() => setActiveTab('categories')}>
-						<FaList className="icon" /> Quản lý danh mục
-					</li>
-					<li onClick={() => setActiveTab('users')}>
-						<FaUsers className="icon" /> Quản lý người dùng
-					</li>
+						<li 
+							className={activeTab === 'products' ? 'active' : ''} 
+							onClick={() => setActiveTab('products')}
+						>
+							<FcPhoneAndroid className="icon" /> Quản lý sản phẩm
+						</li>
+						<li 
+							className={activeTab === 'categories' ? 'active' : ''} 
+							onClick={() => setActiveTab('categories')}
+						>
+							<FaList className="icon" /> Quản lý danh mục
+						</li>
+						<li 
+							className={activeTab === 'users' ? 'active' : ''} 
+							onClick={() => setActiveTab('users')}
+						>
+							<FaUsers className="icon" /> Quản lý tài khoản
+						</li>
 				</ul>
 				<div className="sidebar-footer">
 					<p className="admin-greeting">Xin chào, {adminName}</p>

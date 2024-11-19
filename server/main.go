@@ -43,9 +43,10 @@ func main() {
 	productController := controllers.NewProductController(db)
 	categoryController := controllers.NewCategoryController(db)
 	adminController := controllers.NewAdminAuthController(db)
+	userController := controllers.NewUserController(db) // Initialize userController
 
 	// Set up routes
-	routes.SetupRoutes(router, authController, productController, categoryController, adminController)
+	routes.SetupRoutes(router, authController, productController, categoryController, adminController, userController) // Pass userController
 
 	// Start the server
 	log.Println("Server starting on port 5000...")
