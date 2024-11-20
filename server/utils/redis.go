@@ -47,7 +47,7 @@ func InitRedis() error {
     maxRetries := 3
     for i := 0; i < maxRetries; i++ {
         // Kiểm tra kết nối hiện tại
-        if redisClient != nil {
+        if (redisClient != nil) {
             log.Println("Redis client đã tồn tại, kiểm tra kết nối...")
             if CheckRedisConnection() {
                 return nil

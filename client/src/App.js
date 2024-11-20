@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import Header from './components/common/Header/Header.tsx';
 import Body from './components/common/Body/Body.tsx';
@@ -8,6 +8,8 @@ import AdminSidebar from './components/admin/AdminSidebar';
 import UserHome from './pages/UserHome';
 import CategoryManagement from './components/admin/CategoryManagement';
 import UserManagement from './components/admin/UserManagement';
+import DetailProduct from './pages/DetailProduct';
+import CategoryProductPage from './pages/CategoryProductPage'; // Ensure this import is correct
 import './App.css';
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
         
         <Route path="/admin" element={<Navigate to="/admin/auth" />} />
         <Route path="/" element={<UserHome />} />
+        <Route path="/product/:productId" element={<DetailProduct />} />
+        <Route path="/category/:categoryName" element={<CategoryProductPage />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </div>

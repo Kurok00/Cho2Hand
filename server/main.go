@@ -1,16 +1,25 @@
 package main
 
 import (
+	"context"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"cho2hand/configs"
 	"cho2hand/controllers"
 	"cho2hand/middleware"
 	"cho2hand/routes"
-	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+var allowOriginFunc = func(r *http.Request) bool {
+	return true
+}
 
 func main() {
 	// Load environment variables from .env file
@@ -35,7 +44,7 @@ func main() {
 	// Initialize Gin
 	router := gin.Default()
 
-	// Apply CORS middleware only
+	// Apply CORS middleware
 	router.Use(middleware.CORSMiddleware())
 
 	// Set up controllers
@@ -48,9 +57,23 @@ func main() {
 	// Set up routes
 	routes.SetupRoutes(router, authController, productController, categoryController, adminController, userController) // Pass userController
 
+	// Remove Socket.IO server setup and handlers
+
+	// Graceful shutdown
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		log.Println("Shutting down server...")
+
+		if err := client.Disconnect(context.TODO()); err != nil {
+			log.Fatal("MongoDB disconnect:", err)
+		}
+	}()
+
 	// Start the server
 	log.Println("Server starting on port 5000...")
-	if err := router.Run(":5000"); err != nil {
+	if err := http.ListenAndServe(":5000", router); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }

@@ -392,3 +392,20 @@ func (uc *UserController) GetAdminByID(c *gin.Context) {
         "status":   admin.Status,
     })
 }
+
+func (uc *UserController) GetUserPhone(c *gin.Context) {
+    userId := c.Param("userId")
+    id, err := primitive.ObjectIDFromHex(userId)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+
+    user, err := uc.userService.GetByID(id)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"phone": user.Phone})
+}

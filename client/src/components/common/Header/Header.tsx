@@ -5,6 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faShoppingCart, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
 import { login, register } from '../../../services/authServices.ts';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import axios from 'axios'; // Import axios
+
+interface Category {
+    id: string;
+    name: string;
+}
 
 const Header: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -21,6 +28,8 @@ const Header: React.FC = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [user, setUser] = useState<any>(null);
     const [showUserDropdown, setShowUserDropdown] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]); // Define the type for categories
+    const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
         if (isDarkMode) {
@@ -36,6 +45,19 @@ const Header: React.FC = () => {
         if (savedUser) {
             setUser(JSON.parse(savedUser));
         }
+    }, []);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/categories');
+                setCategories(response.data.data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchCategories();
     }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -88,9 +110,8 @@ const Header: React.FC = () => {
         }
     };
 
-    const handleCategorySelect = (categoryId: string) => {
-        // Handle category selection
-        console.log(`Selected category: ${categoryId}`);
+    const handleCategorySelect = (categoryId: string, categoryName: string) => {
+        navigate(`/category/${categoryName}`, { state: { categoryId, categoryName } });
     };
 
     const handleLogout = () => {
@@ -120,7 +141,7 @@ const Header: React.FC = () => {
         <div className="header-container">
             <header className="hdr">
                 <div className="hdr-left">
-                    <div className="logo">
+                    <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}> {/* Add cursor pointer */}
                         <img src="/cho2hand-logo.png" alt="Logo" width="230" />
                     </div>
                     <nav className="nav">
@@ -128,9 +149,15 @@ const Header: React.FC = () => {
                             <FontAwesomeIcon icon={faBars} className="menu-bars-icon" />
                             <span className="nav-text" style={{ color: 'white' }}>Danh mục</span>
                             <div className="dropdown">
-                                <button className="dropdown-item" onClick={() => handleCategorySelect('category1')}>Category 1</button>
-                                <a href="#category2">Category 2</a>
-                                <a href="#category3">Category 3</a>
+                                {categories.map((category) => (
+                                    <div 
+                                        key={category.id} 
+                                        className="dropdown-item" 
+                                        onClick={() => handleCategorySelect(category.id, category.name)}
+                                    >
+                                        {category.name}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </nav>

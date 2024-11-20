@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useProducts } from '../../../hooks/useProducts.ts';
 import './Body.css';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface Category {
   id: string;
@@ -13,15 +14,13 @@ const BodyComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const { products = [], loading: productsLoading, error: productsError, fetchProducts } = useProducts();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        console.log('Fetching categories...');
         const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        console.log('API URL:', apiUrl); // Log the API URL
         const response = await fetch(`${apiUrl}/api/categories`);
-        console.log('Categories response:', response);
         if (!response.ok) {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);
         }
@@ -52,9 +51,10 @@ const BodyComponent: React.FC = () => {
     }
   }, [productsError, fetchProducts]);
 
-  const handleCategoryClick = (category: string) => {
-    // Handle category click here
-    console.log(`Selected category: ${category}`);
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    navigate(`/category/${categoryName}`, { 
+      state: { categoryId, categoryName } 
+    });
   };
 
   const sortedProducts = products.slice().sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -78,7 +78,7 @@ const BodyComponent: React.FC = () => {
               categories.map((category) => (
                 <button 
                   key={category.id}
-                  onClick={() => handleCategoryClick(category.id)}
+                  onClick={() => handleCategoryClick(category.id, category.name)}
                   className="category-button"
                 >
                   <img src={category.image} alt={category.name} />
@@ -96,19 +96,20 @@ const BodyComponent: React.FC = () => {
             <p style={{ fontSize: '18px', fontWeight: 'bold' }}>Tin Đăng</p>     
           </div>
           
-          <div className="tin-dang-grid">
+          <div className="tin-dang-grid" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
             {productsLoading ? (
               <div className="loading-state">Đang tải sản phẩm...</div>
             ) : productsError ? (
               <div className="error-state">Lỗi: {productsError}</div>
             ) : sortedProducts && sortedProducts.length > 0 ? (
               sortedProducts.map(product => (
-                <a key={product._id} href={`/product/${product._id}`} className="product-card">
+                <Link key={product._id} to={`/product/${product._id}`} className="product-card">
                   <img 
                     src={product.images[0] || '/placeholder.jpg'} 
                     alt={product.name}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder.jpg'
+                      console.log('Image not found, using default image.');
+                      (e.target as HTMLImageElement).src = '/assets/404-error-3060993_640.png';
                     }}
                   />
                   <span className="product-name">{product.name}</span>
@@ -123,7 +124,7 @@ const BodyComponent: React.FC = () => {
                     </span>
                     <span className="location">{product.location}</span>
                   </div>
-                </a>
+                </Link>
               ))
             ) : (
               <div className="empty-state">Không có sản phẩm nào</div>

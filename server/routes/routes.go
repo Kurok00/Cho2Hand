@@ -84,8 +84,9 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
     // Generic product routes after specific ones
     router.GET("/api/products", productController.GetProducts)
     router.POST("/api/products", productController.CreateProduct)
-    router.GET("/api/products/:id", productController.GetProductByID)
+    router.GET("/api/products/:id", productController.GetProductByID)  // Ensure this route is included
     router.PUT("/api/products/:id", productController.UpdateProduct)
+    router.POST("/api/products/batch", productController.CreateManyProducts)
 
     // User product routes 
     router.GET("/api/users/:userId/products", productController.GetUserProducts)
@@ -94,14 +95,14 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
     router.POST("/api/upload", func(c *gin.Context) {
         // Get file from form
         file, err := c.FormFile("image")
-        if (err != nil) {
+        if err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
             return
         }
 
         // Upload to Cloudinary with Redis cache
         imageURL, err := utils.UploadImage(file)
-        if (err != nil) {
+        if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
@@ -119,7 +120,7 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
             return
         }
         hashedPassword, err := utils.HashPassword(request.Password)
-        if (err != nil) {
+        if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
             return
         }
@@ -134,6 +135,7 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
 
     router.GET("/api/users/:userId", userController.GetUserByID)
     router.GET("/api/users/:userId/password", userController.GetUserPassword)
+    router.GET("/api/users/:userId/phone", userController.GetUserPhone) // Ensure this route is included
 
     // User management routes
     router.GET("/api/users", userController.GetUsers)
@@ -155,4 +157,12 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
     router.NoRoute(func(c *gin.Context) {
         c.JSON(http.StatusNotFound, gin.H{"error": "Route not found"})
     })
+
+    // Add new route for product phone details
+    router.GET("/api/products/:id/phone-details", productController.GetProductWithPhoneDetails)
+
+    // Add debug logging
+    log.Println("Registering route: POST /api/products/with-phone-details")
+    // Add new route for creating product with phone details
+    router.POST("/api/products/with-phone-details", productController.CreateProductWithPhoneDetails)
 }
