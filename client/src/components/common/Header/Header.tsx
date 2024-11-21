@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Header.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
+import { faBars, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { login, register } from '../../../services/authServices';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios'; // Import axios
@@ -13,10 +12,18 @@ interface Category {
     name: string;
 }
 
+interface LoginData {
+    usernameOrPhone: string;
+    password: string;
+}
+
 const Header: React.FC = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
-    const [loginData, setLoginData] = useState({ emailOrPhone: '', password: '' });
+    const [loginData, setLoginData] = useState<LoginData>({ 
+        usernameOrPhone: '', // Đổi tên từ emailOrUsername thành usernameOrPhone
+        password: '' 
+    });
     const [registerData, setRegisterData] = useState({
         name: '',
         email: '',
@@ -65,22 +72,37 @@ const Header: React.FC = () => {
         setError('');
 
         try {
-            if (!loginData.emailOrPhone || !loginData.password) {
+            if (!loginData.usernameOrPhone || !loginData.password) {
                 setError('Vui lòng điền đầy đủ thông tin');
                 return;
             }
 
-            const response = await login(loginData);
-            console.log('Login response:', response.data); // Debug log
+            // Always treat numeric input as phone number, otherwise as username
+            const isPhoneNumber = /^\d+$/.test(loginData.usernameOrPhone);
+            const loginPayload = {
+                username: isPhoneNumber ? undefined : loginData.usernameOrPhone,
+                phone: isPhoneNumber ? loginData.usernameOrPhone : undefined,
+                password: loginData.password
+            };
 
-            if (response.data && response.data.user && response.data.user.name) {
+            console.log('Sending login payload:', loginPayload); // Debug log
+
+            const response = await login(loginPayload);
+            
+            if (response.data && response.data.user) {
                 const userData = response.data.user;
                 localStorage.setItem('user', JSON.stringify(userData));
                 setUser(userData);
                 setShowLoginModal(false);
+                window.location.reload(); // Refresh page after successful login
             }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Đăng nhập thất bại. Vui lòng thử lại.');
+        } catch (err: any) {
+            console.error('Login error:', err.response?.data || err); // Debug log
+            if (err.response?.data?.error) {
+                setError(err.response.data.error);
+            } else {
+                setError('Đăng nhập thất bại. Vui lòng thử lại.');
+            }
         }
     };
 
@@ -182,16 +204,7 @@ const Header: React.FC = () => {
                 </div>
 
                 <div className="hdr-right">
-                    <button className="icon-btn">
-                        <FontAwesomeIcon icon={farBell} className="icon" />
-                        <span className="icon-badge">12</span>
-                        <span className="icon-tooltip">Thông báo</span>
-                    </button>
-                    <button className="icon-btn">
-                        <FontAwesomeIcon icon={faShoppingCart} className="icon" />
-                        <span className="icon-badge">3</span>
-                        <span className="icon-tooltip">Giỏ hàng</span>
-                    </button>
+                    
                     
                     <button 
                         className="post-sale-btn"
@@ -253,14 +266,14 @@ const Header: React.FC = () => {
                             <form onSubmit={handleLogin}>
                                 {error && <div className="error-message">{error}</div>}
                                 <div className="form-group">
-                                    <label>Email hoặc Số điện thoại</label>
+                                    <label>Tên đăng nhập hoặc Số điện thoại</label>
                                     <input 
                                         type="text" 
-                                        value={loginData.emailOrPhone}
-                                        onChange={(e) => setLoginData({...loginData, emailOrPhone: e.target.value})}
-                                        placeholder="Nhập email hoặc số điện thoại" 
+                                        value={loginData.usernameOrPhone}
+                                        onChange={(e) => setLoginData({...loginData, usernameOrPhone: e.target.value})}
+                                        placeholder="Nhập tên đăng nhập hoặc số điện thoại" 
                                     />
-                                    <small className="form-hint">Sử dụng email hoặc số điện thoại để đăng nhập</small>
+                                    <small className="form-hint">Bạn có thể đăng nhập bằng tên đăng nhập hoặc số điện thoại</small>
                                 </div>
                                 <div className="form-group">
                                     <label>Mật khẩu</label>

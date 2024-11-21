@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminLogin, adminRegister } from '../../services/adminAuthService.ts';
+import { login } from '../../services/adminAuthService.ts'; // Thay đổi import adminLogin thành login
+import { adminRegister } from '../../services/adminAuthService.ts';
 import './AdminAuth.css';
 import axios from 'axios';
 
@@ -26,16 +27,21 @@ function AdminAuth() {
     }
   }, [navigate]);
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     try {
-      const response = await adminLogin(loginData);
-      if (response.status === 200) {
-        // Redirect after successful login
-        navigate('/admin/dashboard', { replace: true });
-      }
+        const response = await login({ // Thay đổi adminLogin thành login
+            usernameOrPhone: loginData.username,
+            password: loginData.password
+        });
+        if (response.status === 200) {
+          // Redirect after successful login
+          navigate('/admin/dashboard', { replace: true });
+        }
     } catch (err) {
-      setError(err.response?.data?.error || 'Đăng nhập thất bại');
+        setError(err.response?.data?.error || 'Đăng nhập thất bại');
     }
   };
 
@@ -89,7 +95,7 @@ function AdminAuth() {
         <div className="admin-auth-form">
           {error && <div className="error-message">{error}</div>}
           {activeTab === 'login' ? (
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Tên đăng nhập</label>
                 <input

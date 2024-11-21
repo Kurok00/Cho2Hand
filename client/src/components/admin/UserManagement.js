@@ -238,6 +238,7 @@ function UserManagement() {
                 <thead>
                   <tr>
                     <th>Tên người dùng</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>Số điện thoại</th>
                     <th>Trạng thái</th>
@@ -248,6 +249,7 @@ function UserManagement() {
                   {users.map(user => (
                     <tr key={user._id}>
                       <td>{user.name}</td>
+                      <td>{user.username}</td>
                       <td>{user.email}</td>
                       <td>{user.phone || 'N/A'}</td>
                       <td>

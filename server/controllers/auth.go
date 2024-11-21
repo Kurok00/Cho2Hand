@@ -10,6 +10,7 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
     "context"
     "time"
+    "fmt"
 )
 
 type AuthController struct {
@@ -59,32 +60,42 @@ func (ac *AuthController) Login(c *gin.Context) {
     ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
     defer cancel()
 
-    err := ac.userCollection.FindOne(ctx, bson.M{
-        "$or": []bson.M{
-            {"email": loginData.EmailOrPhone},
-            {"phone": loginData.EmailOrPhone},
-        },
-    }).Decode(&user)
+    // Debug output
+    fmt.Printf("Login attempt with username: %s, phone: %s\n", loginData.Username, loginData.Phone)
 
+    filter := bson.M{}
+    if loginData.Username != "" {
+        filter = bson.M{"username": loginData.Username}
+    } else if loginData.Phone != "" {
+        filter = bson.M{"phone": loginData.Phone}
+    }
+
+    err := ac.userCollection.FindOne(ctx, filter).Decode(&user)
     if err != nil {
         if err == mongo.ErrNoDocuments {
-            c.JSON(http.StatusUnauthorized, gin.H{"error": "Email/SĐT hoặc mật khẩu không đúng"})
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "Tài khoản hoặc mật khẩu không đúng"})
             return
         }
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi server"})
         return
     }
 
+    // Debug output
+    fmt.Printf("Found user: %+v\n", user)
+
     if !utils.CheckPasswordHash(loginData.Password, user.Password) {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Email/SĐT hoặc mật khẩu không đúng"})
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Tài khoản hoặc mật khẩu không đúng"})
         return
     }
 
     c.JSON(http.StatusOK, gin.H{
         "message": "Đăng nhập thành công",
         "user": gin.H{
-            "id": user.ID,
-            "name": user.Name, // Ensure this line is correct
+            "id":       user.ID,
+            "name":     user.Name,
+            "username": user.Username,
+            "email":    user.Email,
+            "phone":    user.Phone,
         },
     })
 }

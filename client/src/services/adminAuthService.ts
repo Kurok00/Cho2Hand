@@ -21,15 +21,26 @@ axiosInstance.interceptors.request.use((config) => {
     return config;
 });
 
-export const adminLogin = async (loginData: { username: string; password: string }) => {
+export const login = async (credentials: { usernameOrPhone: string; password: string }) => {
     try {
-        const response = await axiosInstance.post('/login', loginData);
-        if (response.data.status === 200) {
+        const response = await axiosInstance.post('/login', {
+            username: credentials.usernameOrPhone, 
+            password: credentials.password
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.data) {
             localStorage.setItem('adminData', JSON.stringify(response.data.admin));
             return response.data;
         }
-        throw new Error(response.data.error || 'Login failed');
+        throw new Error(response.data?.error || 'Login failed');
     } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error(error.response?.data?.error || 'Thông tin đăng nhập không chính xác');
+        }
         throw error;
     }
 };

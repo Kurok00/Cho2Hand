@@ -3,11 +3,14 @@
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 1800px;
+    margin: 0 auto;
 }
 
 .tables-container {
-    display: flex;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
 }
 
 .table-section {
@@ -16,6 +19,11 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.users-table, .admins-table {
+    width: 100%;
+    overflow-x: auto;
 }
 
 .table-actions {
@@ -34,21 +42,31 @@
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 1000px; /* Increased from 800px to accommodate new column */
 }
 
 th, td {
-    padding: 12px;
+    padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #eee;
 }
 
 th {
-    background-color: #f5f5f5;
+    background-color: #f8f9fa;
+    font-weight: 600;
 }
 
 .action-buttons {
     display: flex;
-    gap: 5px;
+    gap: 8px;
+}
+
+.action-buttons button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
 }
 
 .edit-btn, .delete-btn, .block-btn {
@@ -75,18 +93,18 @@ th {
 
 .status {
     padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 .status.active {
     background: #e8f5e9;
-    color: #4CAF50;
+    color: #2e7d32;
 }
 
-.status.blocked {
+.status.blocked, .status.inactive {
     background: #ffebee;
-    color: #f44336;
+    color: #c62828;
 }
 
 .user-management h2 {
@@ -131,11 +149,11 @@ th {
 }
 
 .error-message {
-  padding: 20px;
+  padding: 12px;
   background-color: #ffebee;
   color: #c62828;
   border-radius: 4px;
-  margin: 20px;
+  margin-bottom: 20px;
   text-align: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -155,10 +173,10 @@ th {
 
 .modal-content {
   background: white;
-  padding: 20px;
-  border-radius: 5px;
-  width: 400px;
-  max-width: 90%;
+  padding: 24px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
   text-align: center;
 }
 
@@ -166,12 +184,13 @@ th {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
+  gap: 12px;
 }
 
 .modal-actions button {
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -181,7 +200,7 @@ th {
 
 .modal-content {
   background: #fff;
-  padding: 20px;
+  padding: 32px;
   border-radius: 8px;
   width: 500px; /* Increase width */
   max-width: 90%;
@@ -193,22 +212,23 @@ th {
 
 .modal-content h2 {
   margin-top: 0;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   text-align: center;
+  font-size: 24px;
 }
 
 .modal-content label {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
+  display: block;
+  margin-bottom: 16px;
 }
 
-.modal-content input {
+.modal-content input, .modal-content select {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
+  padding: 12px;
+  margin-top: 4px;
+  border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 15px;
 }
 
 .modal-content p {
@@ -238,4 +258,158 @@ th {
 
 .modal-actions button:last-child {
   background: #ccc;
+}
+
+/* Responsive styles for 1920x1080 */
+@media screen and (min-width: 1920px) {
+  .tables-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+  }
+
+  .table-section {
+    padding: 30px;
+  }
+
+  table {
+    font-size: 16px;
+  }
+
+  th, td {
+    padding: 16px 24px;
+  }
+
+  .action-buttons button {
+    padding: 8px 16px;
+    font-size: 15px;
+  }
+
+  .modal-content {
+    max-width: 600px;
+    padding: 32px;
+  }
+
+  .modal-content input, .modal-content select {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  h2 {
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+/* Responsive styles for 14 inch (1366x768) */
+@media screen and (max-width: 1366px) {
+  .user-management {
+    padding: 15px;
+    max-width: 1300px;
+  }
+
+  .table-section {
+    padding: 20px;
+  }
+
+  table {
+    font-size: 14px;
+    min-width: 900px;
+  }
+
+  th, td {
+    padding: 10px 15px;
+  }
+
+  .action-buttons button {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .modal-content {
+    max-width: 500px;
+    padding: 25px;
+  }
+
+  .modal-content input, 
+  .modal-content select {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .modal-content label {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .status {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+
+  .add-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* Responsive styles for 14 inch (1920x1080) */
+@media screen and (min-width: 1367px) and (max-width: 1919px) {
+  .user-management {
+    padding: 18px;
+    max-width: 1600px;
+  }
+
+  .table-section {
+    padding: 25px;
+  }
+
+  table {
+    font-size: 15px;
+    min-width: 950px;
+  }
+
+  th, td {
+    padding: 12px 18px;
+  }
+
+  .action-buttons button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .modal-content {
+    max-width: 550px;
+    padding: 28px;
+  }
+
+  .modal-content input, 
+  .modal-content select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .modal-content label {
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .status {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+
+  .add-btn {
+    padding: 7px 14px;
+    font-size: 14px;
+  }
 }

@@ -21,8 +21,9 @@ type User struct {
 }
 
 type Login struct {
-	EmailOrPhone string `json:"emailOrPhone"`
-	Password     string `json:"password"`
+	Username string `json:"username"`
+	Phone    string `json:"phone,omitempty"`
+	Password string `json:"password"`
 }
 
 type UserService struct {

@@ -1,22 +1,24 @@
 .product-management {
     background: white;
     border-radius: 10px;
-    padding: 25px;
+    padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .product-management h1 {
-    color: #2c3e50;
+    color: #1a73e8; /* Changed to blue */
     margin-bottom: 25px;
     font-size: 1.8rem;
 }
 
 .filters {
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
 .filters select {
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
@@ -26,19 +28,19 @@
 }
 
 .add-btn {
-    background: #28a745;
-    color: white;
-    padding: 12px 24px;
+    background-color: #ffc107; /* Changed to yellow */
+    color: #000; /* Dark text for better contrast on yellow */
+    padding: 10px 20px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
     margin-bottom: 20px;
     transition: all 0.3s ease;
 }
 
 .add-btn:hover {
-    background: #218838;
+    background: #e6ac00; /* Darker yellow */
     transform: translateY(-1px);
 }
 
@@ -52,15 +54,97 @@
 }
 
 .product-management th, .product-management td {
-    padding: 15px;
-    text-align: left;
+    padding: 12px;
+    vertical-align: middle;
     border-bottom: 1px solid #eee;
+    text-align: left;
+    border: 1px solid #ddd;
+    vertical-align: top;
 }
 
 .product-management th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
-    font-weight: 600;
+    background-color: #e3f2fd; /* Light blue background */
+    color: #1a73e8; /* Blue text */
+    font-weight: bold;
+}
+
+.product-management td {
+    padding: 12px;
+    vertical-align: top;
+    line-height: 1.4;
+}
+.product-management td.description-cell {
+    max-width: 200px;
+    max-height: 60px; /* Approximately 3 lines of text */
+    overflow-y: auto;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    padding-right: 20px; /* Space for scrollbar */
+    line-height: 1.2;
+}
+
+.product-management td:nth-child(3) {
+    max-width: 300px;
+    height: 60px; /* Fixed height for 3 lines */
+    overflow-y: auto;
+    white-space: pre-wrap;
+    line-height: 20px; /* Line height of 20px = 3 lines in 60px height */
+    display: block; /* Important for scroll to work */
+    padding: 10px;
+}
+
+/* Customize scrollbar for description cell */
+.product-management td:nth-child(3)::-webkit-scrollbar {
+    width: 4px;
+}
+
+.product-management td:nth-child(3)::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.product-management td:nth-child(3)::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 2px;
+}
+
+.product-management th:nth-child(1),
+.product-management td:nth-child(1) {
+    width: 80px; /* Image column */
+}
+
+.product-management th:nth-child(2),
+.product-management td:nth-child(2) {
+    width: 150px; /* Name column */
+}
+
+.product-management th:nth-child(3),
+.product-management td:nth-child(3) {
+    width: 300px; /* Description column */
+}
+
+.product-management th:last-child,
+.product-management td:last-child {
+    width: 270px; /* Increased width to accommodate buttons */
+    text-align: center;
+    white-space: nowrap;
+}
+
+.description-cell::-webkit-scrollbar {
+    width: 6px;
+}
+
+.description-cell::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.description-cell::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.description-cell::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .product-management .product-image {
@@ -71,17 +155,31 @@
 }
 
 .product-management .edit-btn, .product-management .delete-btn, .product-management .add-btn, .product-management .status-btn {
-    padding: 8px 16px;
+    padding: 8px 12px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s ease;
-    margin: 0 5px;
+    margin: 0 4px;
+}
+
+.product-management .edit-btn, 
+.product-management .status-btn {
+    min-width: 120px;
+    padding: 8px 12px;
+    margin: 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: inline-block;
 }
 
 .product-management .edit-btn {
-    background: #007bff;
+    background-color: #4CAF50;
     color: white;
 }
 
@@ -95,7 +193,7 @@
 }
 
 .product-management .status-btn {
-    background: #6c757d;
+    background-color: #2196F3;
     color: white;
 }
 
@@ -118,7 +216,7 @@
 
 .edit-modal-content {
     background: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 8px;
     width: 500px;
     max-width: 90%;
@@ -133,17 +231,17 @@
 
 .edit-modal-content label {
     display: block;
-    margin-bottom: 8px;
+    margin-top: 12px;
     color: #4a5568;
-    font-weight: 500;
+    font-weight: bold;
 }
 
 .edit-modal-content input,
 .edit-modal-content select,
 .edit-modal-content textarea {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 8px;
+    margin: 8px 0;
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
@@ -175,7 +273,7 @@
 }
 
 .edit-modal-content .image-preview {
-    margin: 15px 0;
+    margin: 10px 0;
     text-align: center;
 }
 

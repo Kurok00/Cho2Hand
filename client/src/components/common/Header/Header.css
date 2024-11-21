@@ -32,11 +32,13 @@
     margin-right: 100px;
 }
 
+/* Update header right styles */
 .hdr-right {
     text-align: right;
     display: flex;
     align-items: center;
-    gap: 16px; /* Thêm khoảng cách đều giữa các items */
+    gap: 12px;
+    margin-right: 20px;
 }
 
 /* Search components */
@@ -174,56 +176,14 @@ body.dark-mode .dropdown-item:hover {
     transform: translateY(0);
 }
 
+/* Remove these styles as they're no longer needed
 .icon-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #FF8800;
-    color: white;
-    font-size: 11px;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 4px;
-    border: 2px solid #d70018;
-    font-weight: bold;
+    ...
 }
-
 .icon-tooltip {
-    position: absolute;
-    top: calc(100% + 10px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.2s ease;
+    ...
 }
-
-.icon-tooltip::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 8px;
-    height: 8px;
-    background: rgba(0, 0, 0, 0.8);
-}
-
-.icon-btn:hover .icon-tooltip {
-    opacity: 1;
-    visibility: visible;
-    top: calc(100% + 5px);
-}
+*/
 
 /* Remove old icon styles */
 .icon {
@@ -665,22 +625,58 @@ body.dark-mode .error-message {
     display: inline-block;
 }
 
+/* ...existing code... */
+
 .user-btn {
     display: flex;
     align-items: center;
     padding: 8px 16px;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 4px;
-    color: white;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    color: #333;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 160px; /* Thêm độ rộng tối thiểu */
-    justify-content: flex-start; /* Căn text về bên trái */
+    min-width: 160px;
+    justify-content: flex-start;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .user-btn:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: #f8f8f8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.user-btn .auth-icon {
+    color: #d70018;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.user-btn span {
+    color: #333;
+    font-weight: 500;
+    margin-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .user-btn {
+    background-color: #424242;
+    color: #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .user-btn:hover {
+    background-color: #4a4a4a;
+}
+
+body.dark-mode .user-btn span {
+    color: #e0e0e0;
 }
 
 .user-btn.active {
@@ -795,7 +791,7 @@ body.dark-mode .form-hint {
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
-    margin-left: auto; /* Push button to the right */
+    margin-left: 0; /* Remove left margin since it's first item now */
     margin-right: 16px;
     order: -1; /* Move button before other elements */
 }
@@ -809,3 +805,81 @@ body.dark-mode .form-hint {
 }
 
 /* ...existing code... */
+
+/* Responsive styles */
+@media screen and (min-width: 2560px) {
+    .hdr {
+        max-width: 2000px;
+        margin: 0 auto;
+    }
+    
+    .search {
+        width: 600px;
+    }
+}
+
+@media screen and (max-width: 1920px) {
+    .hdr {
+        max-width: 1600px;
+        padding: 0 20px;
+    }
+    
+    .search {
+        width: 500px;
+    }
+    
+    .logo img {
+        width: 200px;
+    }
+}
+
+@media screen and (max-width: 1536px) {
+    .hdr {
+        max-width: 1366px;
+        padding: 0 15px;
+    }
+    
+    .search {
+        width: 400px;
+    }
+    
+    .logo img {
+        width: 180px;
+    }
+    
+    .auth-btn, .post-sale-btn {
+        padding: 8px 12px;
+    }
+}
+
+/* ...existing code... */
+
+@media screen and (max-width: 1366px) {
+    .hdr {
+        max-width: 1200px;
+        padding: 0 15px;
+    }
+    
+    .search {
+        width: 350px;
+    }
+    
+    .logo img {
+        width: 160px;
+    }
+    
+    .auth-btn, .post-sale-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .icon-btn {
+        padding: 6px;
+        min-width: 32px;
+    }
+    
+    .user-btn {
+        min-width: 140px;
+        font-size: 13px;
+    }
+}
