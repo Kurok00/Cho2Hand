@@ -371,59 +371,100 @@ func (pc *ProductController) GetProductWithPhoneDetails(c *gin.Context) {
         "phoneDetails": phoneDetails,
     })
 }
+// CreateProductWithPhoneDetails
 
 func (pc *ProductController) CreateProductWithPhoneDetails(c *gin.Context) {
     var request struct {
-        Product     models.Product     `json:"product"`
+        Product     models.Product     `json:"product" binding:"required"`
         PhoneDetails []models.PhoneDetail `json:"phoneDetails"`
     }
 
     if err := c.ShouldBindJSON(&request); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+        log.Printf("Error binding JSON: %v", err)
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Invalid request payload",
+            "details": err.Error(),
+        })
         return
     }
 
-    // Set timestamps for the product
-    location, _ := time.LoadLocation("Asia/Bangkok")
-    now := time.Now().In(location)
-    request.Product.CreatedAt = now
-    request.Product.UpdatedAt = now
+    // Validate price
+    if request.Product.Price <= 0 {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Price must be a positive number",
+        })
+        return
+    }
 
-    // Insert the product
-    result, err := pc.productCollection.InsertOne(context.Background(), request.Product)
+    // Bắt đầu một phiên giao dịch MongoDB
+    session, err := pc.productCollection.Database().Client().StartSession()
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating product"})
+        log.Printf("Error starting session: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error starting database session"})
+        return
+    }
+    defer session.EndSession(context.Background())
+
+    // Thực hiện các thao tác trong transaction
+    callback := func(sessionContext mongo.SessionContext) error {
+        // 1. Tạo product trước
+        location, _ := time.LoadLocation("Asia/Bangkok")
+        now := time.Now().In(location)
+        request.Product.CreatedAt = now
+        request.Product.UpdatedAt = now
+        request.Product.ID = primitive.NewObjectID()
+
+        // 2. Tạo và liên kết phone details
+        var phoneDetailIDs []primitive.ObjectID
+        phoneDetailCollection := pc.productCollection.Database().Collection("phone_details")
+        
+        for i := range request.PhoneDetails {
+            detailID := primitive.NewObjectID()
+            phoneDetailIDs = append(phoneDetailIDs, detailID)
+            
+            // Thiết lập ID cho chi tiết điện thoại và liên kết với product
+            request.PhoneDetails[i].ID = detailID
+            request.PhoneDetails[i].ProductID = request.Product.ID
+        }
+
+        // Cập nhật danh sách ID chi tiết điện thoại vào product
+        request.Product.PhoneDetailIDs = phoneDetailIDs
+
+        // 3. Lưu product
+        if _, err := pc.productCollection.InsertOne(sessionContext, request.Product); err != nil {
+            log.Printf("Error inserting product: %v", err)
+            return err
+        }
+
+        // 4. Lưu tất cả phone details
+        var phoneDetailsInterface []interface{}
+        for _, detail := range request.PhoneDetails {
+            phoneDetailsInterface = append(phoneDetailsInterface, detail)
+        }
+        
+        if len(phoneDetailsInterface) > 0 {
+            if _, err := phoneDetailCollection.InsertMany(sessionContext, phoneDetailsInterface); err != nil {
+                log.Printf("Error inserting phone details: %v", err)
+                return err
+            }
+        }
+
+        return nil
+    }
+
+    // Thực thi transaction
+    if err := mongo.WithSession(context.Background(), session, func(sc mongo.SessionContext) error {
+        return callback(sc)
+    }); err != nil {
+        log.Printf("Transaction failed: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating product with phone details"})
         return
     }
 
-    productID := result.InsertedID.(primitive.ObjectID)
-
-    // Set the ProductID for each phone detail and insert them
-    var phoneDetailIDs []primitive.ObjectID
-    for i := range request.PhoneDetails {
-        request.PhoneDetails[i].ProductID = productID
-        request.PhoneDetails[i].ID = primitive.NewObjectID() // Ensure each phone detail has a unique ID
-        phoneDetailIDs = append(phoneDetailIDs, request.PhoneDetails[i].ID)
-    }
-
-    phoneDetailCollection := pc.productCollection.Database().Collection("phone_details")
-    var phoneDetails []interface{}
-    for _, detail := range request.PhoneDetails {
-        phoneDetails = append(phoneDetails, detail)
-    }
-
-    _, err = phoneDetailCollection.InsertMany(context.Background(), phoneDetails)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating phone details"})
-        return
-    }
-
-    // Update the product with the phone detail IDs
-    _, err = pc.productCollection.UpdateOne(context.Background(), bson.M{"_id": productID}, bson.M{"$set": bson.M{"phoneDetailIds": phoneDetailIDs}})
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error updating product with phone detail IDs"})
-        return
-    }
-
-    c.JSON(http.StatusCreated, gin.H{"message": "Product and phone details created successfully", "productID": productID})
+    // Trả về kết quả thành công
+    c.JSON(http.StatusCreated, gin.H{
+        "message": "Product and phone details created successfully",
+        "productId": request.Product.ID,
+        "phoneDetailIds": request.Product.PhoneDetailIDs,
+    })
 }

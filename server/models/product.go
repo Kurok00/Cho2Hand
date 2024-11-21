@@ -18,14 +18,13 @@ type Product struct {
     UpdatedAt         time.Time          `bson:"updated_at" json:"updated_at"`
     Location          string             `bson:"location" json:"location"`
     UserID            primitive.ObjectID `bson:"user_id" json:"user_id"` // Add UserID field
-    
+    PhoneDetailIDs    []primitive.ObjectID `bson:"phoneDetailIds" json:"phoneDetailIds"`
     ImagesMini1       []string           `bson:"imagesmini1" json:"imagesmini1"`
     ImagesMini2       [][]string         `bson:"imagesmini2" json:"imagesmini2"`
     ImagesMini3       []string           `bson:"imagesmini3" json:"imagesmini3"`
     ProductDetailIDs  []primitive.ObjectID `bson:"productDetailIds" json:"productDetailIds"`
     BikeDetailIDs     []primitive.ObjectID `bson:"bikeDetailIds" json:"bikeDetailIds"`
     LaptopDetailIDs   []primitive.ObjectID `bson:"laptopDetailIds" json:"laptopDetailIds"`
-    PhoneDetailIDs    []primitive.ObjectID `bson:"phoneDetailIds" json:"phoneDetailIds"`
     TabletDetailIDs   []primitive.ObjectID `bson:"tabletDetailIds" json:"tabletDetailIds"`
     AudioDetailIDs    []primitive.ObjectID `bson:"audioDetailIds" json:"audioDetailIds"`
     WatchDetailIDs    []primitive.ObjectID `bson:"watchDetailIds" json:"watchDetailIds"`

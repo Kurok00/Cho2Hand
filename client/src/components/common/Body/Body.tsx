@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import React, { useState, useEffect } from 'react';
-import { useProducts } from '../../../hooks/useProducts.ts';
+import { useProducts } from '../../../hooks/useProducts';
 import './Body.css';
 import { Link, useNavigate } from 'react-router-dom';
 

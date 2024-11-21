@@ -4,9 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
+	
 
 	"cho2hand/configs"
 	"cho2hand/controllers"
@@ -23,28 +21,22 @@ var allowOriginFunc = func(r *http.Request) bool {
 
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	// Debug: Print the MONGO_URI environment variable
-	log.Println("MONGO_URI:", os.Getenv("MONGO_URI"))
 
 	// Set up MongoDB connection
 	client, err := configs.ConnectMongoDB()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("MongoDB connection error:", err)
 	}
-
-	// Set the global client variable
+	defer client.Disconnect(context.Background())
+	
 	configs.Client = client
 	db := client.Database("Cho2Hand")
 
-	// Initialize Gin
+	// Initialize Gin and controllers
 	router := gin.Default()
-
-	// Apply CORS middleware
 	router.Use(middleware.CORSMiddleware())
 
 	// Set up controllers
@@ -52,28 +44,14 @@ func main() {
 	productController := controllers.NewProductController(db)
 	categoryController := controllers.NewCategoryController(db)
 	adminController := controllers.NewAdminAuthController(db)
-	userController := controllers.NewUserController(db) // Initialize userController
+	userController := controllers.NewUserController(db)
 
 	// Set up routes
-	routes.SetupRoutes(router, authController, productController, categoryController, adminController, userController) // Pass userController
+	routes.SetupRoutes(router, authController, productController, categoryController, adminController, userController)
 
-	// Remove Socket.IO server setup and handlers
-
-	// Graceful shutdown
-	go func() {
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-		log.Println("Shutting down server...")
-
-		if err := client.Disconnect(context.TODO()); err != nil {
-			log.Fatal("MongoDB disconnect:", err)
-		}
-	}()
-
-	// Start the server
+	// Start server with simple error handling
 	log.Println("Server starting on port 5000...")
-	if err := http.ListenAndServe(":5000", router); err != nil {
-		log.Fatal("Failed to start server:", err)
+	if err := router.Run(":5000"); err != nil {
+		log.Fatal("Server error:", err)
 	}
 }

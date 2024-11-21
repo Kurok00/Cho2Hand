@@ -13,6 +13,7 @@ const DetailProduct = () => {
     const [similarProducts, setSimilarProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [userPhone, setUserPhone] = useState(null);
+    const [mainImage, setMainImage] = useState(null);
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -27,6 +28,10 @@ const DetailProduct = () => {
 
                 setProduct(productData); // Ensure the correct data path
                 setPhoneDetails(phoneDetailsData);
+
+                if (productData && productData.images && productData.images.length > 0) {
+                    setMainImage(productData.images[0]);
+                }
 
                 // Fetch similar products after getting product category
                 if (productData.category) {
@@ -71,6 +76,10 @@ const DetailProduct = () => {
         }
     }, [productId]);
 
+    const handleThumbnailClick = (image) => {
+        setMainImage(image);
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -85,18 +94,26 @@ const DetailProduct = () => {
                 <div className='detail-product'>
                     <div className="product-image">
                         <div className="product-image-main">
-                            <img src={product.images[0] || '/placeholder.jpg'} alt={product.name} onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} />
+                            <img 
+                                src={mainImage || product.images[0] || '/placeholder.jpg'} 
+                                alt={product.name} 
+                                onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} 
+                            />
                         </div>
                         <div className="product-image-mini">
-                            <div className="product-image-mini-item">
-                                <img src={(product['imagesmini1'] && product['imagesmini1'][0]) || '/placeholder.jpg'} alt={`${product.name} mini 1`} onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} />
-                            </div>
-                            <div className="product-image-mini-item">
-                                <img src={(product['imagesmini2'] && product['imagesmini2'][0][0]) || '/placeholder.jpg'} alt={`${product.name} mini 2`} onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} />
-                            </div>
-                            <div className="product-image-mini-item">
-                                <img src={(product['imagesmini3'] && product['imagesmini3'][0]) || '/placeholder.jpg'} alt={`${product.name} mini 3`} onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} />
-                            </div>
+                            {product.images.map((image, index) => (
+                                <div 
+                                    key={index} 
+                                    className={`product-image-mini-item ${mainImage === image ? 'active' : ''}`}
+                                    onClick={() => handleThumbnailClick(image)}
+                                >
+                                    <img 
+                                        src={image || '/placeholder.jpg'} 
+                                        alt={`${product.name} mini ${index + 1}`} 
+                                        onError={(e) => { e.target.src = '/assets/404-error-3060993_640.png'; }} 
+                                    />
+                                </div>
+                            ))}
                         </div>
                     </div>
                     <div className="product-details">

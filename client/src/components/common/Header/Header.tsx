@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './Header.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faShoppingCart, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faShoppingCart, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { faBell as farBell } from '@fortawesome/free-regular-svg-icons';
-import { login, register } from '../../../services/authServices.ts';
+import { login, register } from '../../../services/authServices';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import axios from 'axios'; // Import axios
 
@@ -124,6 +124,14 @@ const Header: React.FC = () => {
         setShowUserDropdown(!showUserDropdown);
     };
 
+    const handlePostSaleClick = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        navigate('/post-sale');
+    };
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const userMenu = document.querySelector('.user-menu');
@@ -183,6 +191,14 @@ const Header: React.FC = () => {
                         <FontAwesomeIcon icon={faShoppingCart} className="icon" />
                         <span className="icon-badge">3</span>
                         <span className="icon-tooltip">Giỏ hàng</span>
+                    </button>
+                    
+                    <button 
+                        className="post-sale-btn"
+                        onClick={handlePostSaleClick}
+                    >
+                        <FontAwesomeIcon icon={faPlusCircle} className="icon" />
+                        Đăng bán
                     </button>
 
                     {user ? (

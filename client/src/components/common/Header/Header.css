@@ -36,7 +36,7 @@
     text-align: right;
     display: flex;
     align-items: center;
-    gap: 8px; /* Thêm khoảng cách đều giữa các items */
+    gap: 16px; /* Thêm khoảng cách đều giữa các items */
 }
 
 /* Search components */
@@ -675,7 +675,7 @@ body.dark-mode .error-message {
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: 160px; /* Thêm độ rộng tối thi��u */
+    min-width: 160px; /* Thêm độ rộng tối thiểu */
     justify-content: flex-start; /* Căn text về bên trái */
 }
 
@@ -777,6 +777,35 @@ body.dark-mode .user-dropdown button:hover {
 
 body.dark-mode .form-hint {
     color: #aaa;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.post-sale-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ff4d4f;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-left: auto; /* Push button to the right */
+    margin-right: 16px;
+    order: -1; /* Move button before other elements */
+}
+
+.post-sale-btn:hover {
+    background-color: #ff7875;
+}
+
+.post-sale-btn .icon {
+    font-size: 1.1rem;
 }
 
 /* ...existing code... */
