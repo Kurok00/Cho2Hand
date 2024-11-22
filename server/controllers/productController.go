@@ -17,12 +17,14 @@ import (
 type ProductController struct {
     productCollection *mongo.Collection
     addressCollection *mongo.Collection
+    db *mongo.Database  // Add this field
 }
 
 func NewProductController(db *mongo.Database) *ProductController {
     return &ProductController{
         productCollection: db.Collection("products"),
         addressCollection: db.Collection("addresses"),
+        db: db,  // Initialize the db field
     }
 }
 
@@ -33,9 +35,23 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
         return
     }
 
-    // Set timestamps
-    location, _ := time.LoadLocation("Asia/Bangkok")
-    now := time.Now().In(location)
+    // Get user's location
+    userID := c.MustGet("userID").(primitive.ObjectID)
+    locationService := models.NewLocationService(pc.db)
+    userLocation, err := locationService.GetLocationDetailsByUserID(userID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user location"})
+        return
+    }
+
+    // Set timestamps in GMT+7
+    timeLocation, _ := time.LoadLocation("Asia/Bangkok")
+    now := time.Now().In(timeLocation)
+
+    // Set product fields
+    product.LocationID = userLocation.ID
+    product.Location = userLocation
+    product.UserID = userID
     product.CreatedAt = now
     product.UpdatedAt = now
 
@@ -44,6 +60,7 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi tạo sản phẩm"})
         return
     }
+    
     c.JSON(http.StatusCreated, gin.H{"id": result.InsertedID})
 }
 

@@ -3,21 +3,14 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
-	
-
 	"cho2hand/configs"
 	"cho2hand/controllers"
 	"cho2hand/middleware"
 	"cho2hand/routes"
-
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
-var allowOriginFunc = func(r *http.Request) bool {
-	return true
-}
 
 func main() {
 	// Load environment variables from .env file
@@ -39,15 +32,25 @@ func main() {
 	router := gin.Default()
 	router.Use(middleware.CORSMiddleware())
 
-	// Set up controllers
-	authController := controllers.NewAuthController()
+	// Initialize controllers with database
+	authController := controllers.NewAuthController(db)
 	productController := controllers.NewProductController(db)
 	categoryController := controllers.NewCategoryController(db)
-	adminController := controllers.NewAdminAuthController(db)
+	adminAuthController := controllers.NewAdminAuthController(db)
 	userController := controllers.NewUserController(db)
+	cityController := controllers.NewCityController(db)
 
 	// Set up routes
-	routes.SetupRoutes(router, authController, productController, categoryController, adminController, userController)
+	routes.SetupRoutes(
+		router,
+		db,
+		authController,
+		productController,
+		categoryController,
+		adminAuthController,
+		userController,
+		cityController,
+	)
 
 	// Start server with simple error handling
 	log.Println("Server starting on port 5000...")

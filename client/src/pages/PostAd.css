@@ -1,0 +1,456 @@
+/* Increase specificity by adding container class and !important where needed */
+body .post-ad-container {
+    max-width: 1800px;
+    margin: 60px auto !important;
+    padding: 40px 60px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    z-index: 1;
+}
+
+body .post-ad-container .form-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 32px;
+    margin-top: 40px;
+}
+
+body .post-ad-container .form-group {
+    margin-bottom: 40px !important;
+    position: relative;
+}
+
+/* Override form controls with higher specificity */
+body .post-ad-container .form-group input,
+body .post-ad-container .form-group textarea,
+body .post-ad-container .form-group select {
+    width: 100% !important;
+    padding: 16px 20px !important;
+    border: 2px solid #e1e1e1 !important;
+    border-radius: 12px !important;
+    font-size: 1.1rem !important;
+    transition: all 0.3s ease !important;
+    background-color: #f8f9fa !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.5 !important;
+    box-sizing: border-box !important;
+}
+
+/* Override label styles */
+body .post-ad-container .form-group label {
+    display: block !important;
+    margin-bottom: 16px !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    font-size: 1.1rem !important;
+}
+
+/* Override phone details section */
+body .post-ad-container .phone-details-section {
+    background: #f8f9fa !important;
+    padding: 40px !important;
+    border-radius: 16px !important;
+    margin-top: 40px !important;
+    grid-column: span 3 !important;
+}
+
+/* Override image upload section */
+body .post-ad-container .image-upload-section {
+    background: #f8f9fa !important;
+    padding: 40px !important;
+    border-radius: 12px !important;
+    border: 2px dashed #e1e1e1 !important;
+    text-align: center !important;
+    margin-bottom: 40px !important;
+}
+
+/* Override button styles */
+body .post-ad-container .submit-btn {
+    padding: 18px 48px !important;
+    background: #d70018 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    min-width: 240px !important;
+    margin-top: 40px !important;
+}
+
+/* Maintain responsive styles with higher specificity */
+@media (min-width: 2560px) {
+    body .post-ad-container {
+        max-width: 2000px !important;
+    }
+    
+    body .post-ad-container .form-group input,
+    body .post-ad-container .form-group textarea,
+    body .post-ad-container .form-group select {
+        padding: 20px 24px !important;
+        font-size: 1.15rem !important;
+    }
+}
+
+/* Add styles for price display */
+body .post-ad-container .price-display {
+    margin-top: 8px !important;
+    font-size: 1rem !important;
+    color: #2c3e50 !important;
+    padding: 8px 12px !important;
+    background-color: #e9ecef !important;
+    border-radius: 8px !important;
+    display: inline-block !important;
+}
+
+/* Ensure price input has proper spacing */
+body .post-ad-container .form-group input[type="number"] {
+    margin-bottom: 4px !important;
+}
+
+.post-ad-container {
+    max-width: 1800px;
+    margin: 60px auto;
+    padding: 40px 60px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 40px;
+}
+
+.full-width {
+    grid-column: span 3;
+}
+
+.form-group {
+    margin-bottom: 40px; /* Tăng khoảng cách giữa các form group */
+    position: relative; /* Để control spacing tốt hơn */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 16px; /* Tăng khoảng cách giữa label và input */
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e1e1e1;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    margin-top: 0; /* Reset margin top */
+    margin-bottom: 8px; /* Thêm margin bottom */
+    line-height: 1.5; /* Cải thiện line height */
+}
+
+/* Override any inherited styles */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="file"],
+.form-group select,
+.form-group textarea {
+    font-family: inherit;
+    box-sizing: border-box;
+    margin: 0 0 8px 0; /* Reset margins và set bottom margin */
+    display: block;
+}
+
+.form-group textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+.image-upload-section {
+    background: #f8f9fa;
+    padding: 40px; /* Increase padding */
+    border-radius: 12px;
+    border: 2px dashed #e1e1e1;
+    text-align: center;
+    margin-bottom: 40px; /* Increase margin bottom */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.image-upload-section:hover {
+    border-color: #d70018;
+    background: #fff;
+}
+
+/* Add space between multiple file inputs */
+.image-upload-section + .image-upload-section {
+    margin-top: 32px;
+}
+
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.image-preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.phone-details-section {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 16px;
+    margin-top: 40px;
+    grid-column: span 3;
+}
+
+.phone-details-section h3 {
+    margin-bottom: 20px;
+    color: #d70018;
+    font-size: 1.2rem;
+}
+
+.phone-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-top: 32px; /* Increase top margin */
+}
+
+.phone-details-section .form-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px; /* Consistent spacing in phone details */
+}
+
+.phone-details-section .form-group input {
+    flex: 1;
+    padding: 10px;
+    margin-bottom: 16px; /* Increase bottom margin for phone detail inputs */
+}
+
+.phone-details-section .form-group button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.phone-details-section .form-group button:hover {
+    background-color: #0056b3;
+}
+
+.phone-details-list {
+    margin-top: 20px;
+}
+
+.phone-detail-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.phone-detail-item p {
+    margin: 5px 0;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #d70018;
+    box-shadow: 0 0 0 3px rgba(215, 0, 24, 0.1);
+    transform: translateY(-1px);
+}
+
+.form-section + .form-section {
+    margin-top: 48px;
+}
+
+/* Add space between sections */
+.form-section {
+    margin-bottom: 48px;
+}
+
+.section-title {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.post-ad-container h2 {
+    text-align: center;
+    margin-bottom: 32px;
+    color: #d70018;
+    font-size: 2rem;
+}
+
+.error-message,
+.success-message {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Better spacing for validation messages */
+.form-group .error-message {
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+.error-message {
+    color: #d70018;
+    background-color: #fff2f2;
+}
+
+.success-message {
+    color: #28a745;
+    background-color: #e6ffed;
+}
+
+.form-actions {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-btn {
+    padding: 18px 48px;
+    background: #d70018;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 40px;
+    min-width: 240px;
+}
+
+.submit-btn:hover {
+    background: #b80015;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(215, 0, 24, 0.2);
+}
+
+/* Adjust spacing for form rows and half groups */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px !important; /* Increase gap between half groups */
+    margin-bottom: 32px !important; /* Add more space between rows */
+    padding: 0 8px; /* Add some horizontal padding */
+}
+
+.form-group.half {
+    margin-bottom: 24px !important;
+    padding: 16px !important; /* Add padding around half groups */
+    background-color: #fff !important; /* Optional: add subtle background */
+    border-radius: 12px !important;
+}
+
+/* Ensure proper spacing in phone details section */
+.phone-details-section .form-row {
+    margin-bottom: 40px !important; /* Extra space between rows in phone details */
+}
+
+.phone-details-section .form-group.half label {
+    margin-bottom: 12px !important; /* Adjust label spacing */
+}
+
+/* Ensure these styles have higher specificity than Body.css */
+body .post-ad-container .form-row {
+    gap: 32px !important;
+}
+
+body .post-ad-container .form-group.half {
+    padding: 16px !important;
+}
+
+@media (max-width: 768px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .post-ad-container {
+        padding: 20px;
+        margin: 20px;
+    }
+}
+
+@media (min-width: 2560px) {
+    .post-ad-container {
+        max-width: 2000px;
+    }
+
+    .form-group {
+        margin-bottom: 48px; /* Even more spacing for 2K displays */
+    }
+    
+    .form-group label {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 1.15rem;
+        padding: 20px 24px;
+    }
+}
+
+@media (max-width: 1920px) {
+    .post-ad-container {
+        max-width: 1600px;
+        padding: 35px 50px;
+    }
+    
+    .form-layout {
+        gap: 28px;
+    }
+}
+
+@media (max-width: 1440px) {
+    .post-ad-container {
+        max-width: 1200px;
+        padding: 30px 40px;
+    }
+    
+    .form-layout {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .full-width,
+    .phone-details-section {
+        grid-column: span 2;
+    }
+}

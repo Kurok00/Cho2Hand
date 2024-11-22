@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { IoLocationOutline } from 'react-icons/io5'; // Add this import
 import axios from 'axios';
 import './CategoryProductPage.css';
 
@@ -17,13 +18,24 @@ const CategoryProductPage = () => {
         type: '',
         sellerType: 'all'
     });
+    const [sortType, setSortType] = useState('newest');
     const navigate = useNavigate(); // Initialize useNavigate
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount);
+    };
 
     useEffect(() => {
         const fetchCategoryProducts = async () => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/products/category/${categoryName}`);
-                setProducts(response.data.data);
+                const sortedProducts = sortProducts(response.data.data, sortType);
+                setProducts(sortedProducts);
                 setLoading(false);
             } catch (err) {
                 setError('Error fetching products');
@@ -34,7 +46,29 @@ const CategoryProductPage = () => {
         if (categoryName) {
             fetchCategoryProducts();
         }
-    }, [categoryName]);
+    }, [categoryName, sortType]);
+
+    const sortProducts = (products, type) => {
+        switch (type) {
+            case 'newest':
+                return [...products].sort((a, b) => 
+                    new Date(b.created_at) - new Date(a.created_at)
+                );
+            case 'price-asc':
+                return [...products].sort((a, b) => a.price - b.price);
+            case 'price-desc':
+                return [...products].sort((a, b) => b.price - a.price);
+            default:
+                return products;
+        }
+    };
+
+    const handleSortChange = (e) => {
+        const newSortType = e.target.value;
+        setSortType(newSortType);
+        const sortedProducts = sortProducts([...products], newSortType);
+        setProducts(sortedProducts);
+    };
 
     if (loading) return <div className="loading">Loading...</div>;
     if (error) return <div className="error">{error}</div>;
@@ -54,7 +88,6 @@ const CategoryProductPage = () => {
             <div className='body'>
                 <div className="category-header">
                     <h1>{categoryName}</h1>
-                    
                 </div>
 
                 <div className="category-content">
@@ -118,8 +151,8 @@ const CategoryProductPage = () => {
                             <div className="sort-filter">
                                 <p>Sắp xếp: </p>
                                 <select 
-                                    value={filters.sort} 
-                                    onChange={e => setFilters({...filters, sort: e.target.value})}
+                                    value={sortType} 
+                                    onChange={handleSortChange}
                                     className="sort-select"
                                 >
                                     <option value="newest">Tin mới trước</option>
@@ -139,14 +172,24 @@ const CategoryProductPage = () => {
                                             onClick={() => handleProductClick(product._id)} // Use handleProductClick
                                             style={{ cursor: 'pointer' }}
                                         >
-                                            <img src={product.images} alt={product.name} className="product-image" />
+                                            <img 
+                                                src={Array.isArray(product.images) ? product.images[0] : product.images} 
+                                                alt={product.name} 
+                                                className="product-image"
+                                                onError={(e) => {
+                                                    e.target.src = '/assets/404-error-3060993_640.png'; // Fallback image
+                                                }}
+                                            />
                                         </div>
                                         <div className="descript">
                                             <div className="product-details">
                                                 <h2 className="product-name">{product.name}</h2>
-                                                <p className="product-price">{product.price} VND</p>
-                                                <p className="product-location">{product.location}</p>
-                                                <button className="chat-button">Chat</button>
+                                                <p className="product-price">{formatCurrency(product.price)}</p>
+                                                
+                                                <div className="location-wrapper">
+                                                    <IoLocationOutline className="location-icon" />
+                                                    <p className="product-location">{product.location}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -157,7 +200,6 @@ const CategoryProductPage = () => {
                 </div>
             </div>
         </div>
-        
     );
 };
 

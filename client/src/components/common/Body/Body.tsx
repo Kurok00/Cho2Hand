@@ -42,15 +42,6 @@ const BodyComponent: React.FC = () => {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    if (productsError) {
-      const timer = setTimeout(() => {
-        fetchProducts();
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [productsError, fetchProducts]);
-
   const handleCategoryClick = (categoryId: string, categoryName: string) => {
     navigate(`/category/${categoryName}`, { 
       state: { categoryId, categoryName } 

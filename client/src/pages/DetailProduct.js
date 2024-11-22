@@ -6,6 +6,15 @@ import './DetailProduct.css';
 
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id); // Custom validation function
 
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(amount);
+};
+
 const DetailProduct = () => {
     const { productId } = useParams(); // Ensure productId is correctly extracted
     const [product, setProduct] = useState(null);
@@ -118,7 +127,9 @@ const DetailProduct = () => {
                     </div>
                     <div className="product-details">
                         <h1>{product.name}</h1>
-                        <div className="price">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}</div>
+                        <div className="price">
+                            {formatCurrency(product.price)}
+                        </div>
                         <div className="additional-details">
                             <p>Danh Mục: {product.category}</p>
                             <p>Màu Sắc: {phoneDetails && phoneDetails.length > 0 ? phoneDetails[0].color : 'N/A'}</p>
@@ -166,12 +177,7 @@ const DetailProduct = () => {
                                     </div>
                                     <div className="similar-product-info">
                                         <h3>{item.name}</h3>
-                                        <p className="price">
-                                            {new Intl.NumberFormat('vi-VN', {
-                                                style: 'currency',
-                                                currency: 'VND'
-                                            }).format(item.price)}
-                                        </p>
+                                        <p className="price">{formatCurrency(item.price)}</p>
                                     </div>
                                 </Link>
                             ))}

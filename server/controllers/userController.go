@@ -17,14 +17,16 @@ import (
 type UserController struct {
     userCollection  *mongo.Collection
     adminCollection *mongo.Collection
-    userService     *models.UserService // Add userService field
+    userService     *models.UserService
+    db             *mongo.Database // Add db field
 }
 
 func NewUserController(db *mongo.Database) *UserController {
     return &UserController{
         userCollection:  db.Collection("users"),
         adminCollection: db.Collection("admins"),
-        userService:     models.NewUserService(db), // Initialize userService
+        userService:     models.NewUserService(db),
+        db:             db, // Initialize db field
     }
 }
 
@@ -408,4 +410,31 @@ func (uc *UserController) GetUserPhone(c *gin.Context) {
     }
 
     c.JSON(http.StatusOK, gin.H{"phone": user.Phone})
+}
+
+func (uc *UserController) GetUserLocation(c *gin.Context) {
+    userID := c.MustGet("userID").(primitive.ObjectID)
+    
+    // Get location using location service
+    locationService := models.NewLocationService(uc.db)
+    location, err := locationService.GetLocationDetailsByUserID(userID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user location"})
+        return
+    }
+
+    // Format response
+    response := gin.H{
+        "city": gin.H{
+            "id":   location.City.ID,
+            "name": location.City.Name,
+        },
+        "district": gin.H{
+            "id":      location.District.ID,
+            "name":    location.District.Name,
+            "city_id": location.City.ID,
+        },
+    }
+
+    c.JSON(http.StatusOK, response)
 }

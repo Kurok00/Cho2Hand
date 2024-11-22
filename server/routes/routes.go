@@ -7,6 +7,12 @@ import (
     "net/http"
     "fmt"
     "log"
+    "go.mongodb.org/mongo-driver/bson/primitive"
+    "go.mongodb.org/mongo-driver/mongo"
+    "cho2hand/models"
+    "io"
+    "bytes"
+    "cho2hand/middleware"
 )
 
 // Simple upload handler with better error handling
@@ -45,29 +51,58 @@ func uploadHandler(c *gin.Context) {
     c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
-func SetupRoutes(router *gin.Engine, authController *controllers.AuthController, 
+func SetupRoutes(router *gin.Engine, db *mongo.Database, authController *controllers.AuthController, 
     productController *controllers.ProductController,
     categoryController *controllers.CategoryController,
     adminAuthController *controllers.AdminAuthController,
-    userController *controllers.UserController) {
+    userController *controllers.UserController,
+    cityController *controllers.CityController) {
 
-    // Update CORS middleware
-    router.Use(func(c *gin.Context) {
-        c.Writer.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-        c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-        c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-        c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+    // Use the proper CORS middleware
+    router.Use(middleware.CORSMiddleware())
 
-        if c.Request.Method == "OPTIONS" {
-            c.AbortWithStatus(204)
+    // City routes
+    router.GET("/api/cities", cityController.GetCities)
+
+    // District routes - use models.NewDistrictService directly
+    districtService := models.NewDistrictService(db)
+    router.GET("/api/districts/city/:cityId", func(c *gin.Context) {
+        cityId := c.Param("cityId")
+        objID, err := primitive.ObjectIDFromHex(cityId)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid city ID"})
             return
         }
 
-        c.Next()
+        districts, err := districtService.GetDistrictsByCity(objID)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching districts"})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"data": districts})
     })
 
+    // Add debug log
+    log.Println("Setting up routes - including /api/cities")
+
     // Auth routes
-    router.POST("/api/auth/register", authController.Register)
+    router.POST("/api/auth/register", func(c *gin.Context) {
+        body, err := c.GetRawData()
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+            return
+        }
+
+        // Log raw body
+        log.Printf("Raw request body: %s", string(body))
+        
+        // Restore request body
+        c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+
+        // Forward to controller
+        authController.Register(c)
+    })
     router.POST("/api/auth/login", authController.Login)
 
     // Admin auth routes
@@ -95,14 +130,14 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
     router.POST("/api/upload", func(c *gin.Context) {
         // Get file from form
         file, err := c.FormFile("image")
-        if err != nil {
+        if (err != nil) {
             c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
             return
         }
 
         // Upload to Cloudinary with Redis cache
         imageURL, err := utils.UploadImage(file)
-        if err != nil {
+        if (err != nil) {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
@@ -165,4 +200,7 @@ func SetupRoutes(router *gin.Engine, authController *controllers.AuthController,
     log.Println("Registering route: POST /api/products/with-phone-details")
     // Add new route for creating product with phone details
     router.POST("/api/products/with-phone-details", productController.CreateProductWithPhoneDetails)
+
+    // Add new route for getting user location
+    router.GET("/api/users/location", middleware.AuthMiddleware(), userController.GetUserLocation)
 }
