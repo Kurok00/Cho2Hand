@@ -2,10 +2,10 @@ FROM golang:1.23.3-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY server/go.mod server/go.sum ./
 RUN go mod download
 
-COPY . .
+COPY server ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main .
 
@@ -21,7 +21,7 @@ RUN apk add --no-cache tzdata
 
 COPY --from=builder /app/main .
 
-# Verify the main executable and .env file are copied
+# Verify the main executable is copied
 RUN ls -la /app
 
 EXPOSE 5000
