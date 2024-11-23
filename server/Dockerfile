@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main .
 # Verify the main executable is built
 RUN ls -la /app
 
-FROM alpine:3.18
+FROM alpine:3.18.3
 
 WORKDIR /app
 
