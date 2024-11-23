@@ -36,12 +36,17 @@ func (cc *CategoryController) GetCategories(c *gin.Context) {
 	}
 	defer cursor.Close(context.Background())
 
-	location, _ := time.LoadLocation("Asia/Bangkok")
+	location, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		log.Printf("Error loading location: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		return
+	}
 	for cursor.Next(context.Background()) {
 		var category models.Category
 		if err := cursor.Decode(&category); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Lỗi khi giải mã danh mục"})
-			return
+			log.Printf("Error decoding category: %v", err)
+			continue
 		}
 		category.CreatedAt = category.CreatedAt.In(location)
 		category.UpdatedAt = category.UpdatedAt.In(location)

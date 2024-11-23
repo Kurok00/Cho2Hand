@@ -80,7 +80,12 @@ func (pc *ProductController) GetProducts(c *gin.Context) {
     defer cursor.Close(context.Background())
 
     var products []models.Product // Initialize products slice
-    location, _ := time.LoadLocation("Asia/Bangkok")
+    location, err := time.LoadLocation("Asia/Bangkok")
+    if err != nil {
+        log.Printf("Error loading location: %v", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+        return
+    }
 
     for cursor.Next(context.Background()) {
         var product models.Product
@@ -355,7 +360,7 @@ func (pc *ProductController) GetProductWithPhoneDetails(c *gin.Context) {
 
     log.Printf("Fetched product: %+v\n", product)
 
-    if product.PhoneDetailIDs == nil || len(product.PhoneDetailIDs) == 0 {
+    if len(product.PhoneDetailIDs) == 0 {
         log.Printf("No phone details found for product ID: %s\n", productID)
         c.JSON(http.StatusOK, gin.H{
             "product":      product,

@@ -15,6 +15,10 @@ RUN ls -la /app
 FROM alpine:3.18
 
 WORKDIR /app
+
+# Install tzdata for time zone support
+RUN apk add --no-cache tzdata
+
 COPY --from=builder /app/main .
 COPY .env .
 
