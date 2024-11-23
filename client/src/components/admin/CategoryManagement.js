@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './CategoryManagement.css';
+import config from '../../config';
 
 function CategoryManagement() {
     const [categories, setCategories] = useState([]);
@@ -62,7 +63,7 @@ function CategoryManagement() {
                 return;
             }
 
-            const response = await axios.post('http://localhost:5000/api/categories', newCategory);
+            const response = await axios.post(`${config.API_BASE_URL}/api/categories`, newCategory);
             setCategories([...categories, response.data.data]);
             setNewCategory({ name: '', image: '' });
             setShowModal(false);
@@ -88,7 +89,7 @@ function CategoryManagement() {
             };
 
             const response = await axios.put(
-                `http://localhost:5000/api/categories/${categoryId}`,
+                `${config.API_BASE_URL}/api/categories/${categoryId}`,
                 updateData,
                 {
                     headers: {
@@ -122,7 +123,7 @@ function CategoryManagement() {
 
     const handleDeleteCategory = async (categoryId) => {
         try {
-            await axios.delete(`http://localhost:5000/api/categories/${categoryId}`);
+            await axios.delete(`${config.API_BASE_URL}/api/categories/${categoryId}`);
             setCategories(categories.filter(cat => (cat._id || cat.id) !== categoryId));
         } catch (err) {
             setError('Lỗi khi xóa danh mục');

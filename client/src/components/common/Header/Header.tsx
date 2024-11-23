@@ -6,6 +6,7 @@ import { faBars, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSig
 import { login, register } from '../../../services/authServices';
 import { useNavigate, Link } from 'react-router-dom'; // Import useNavigate and Link
 import axios from 'axios'; // Import axios
+import config from '../../../config'; // Import config
 
 
 interface Category {
@@ -434,7 +435,7 @@ const Header: React.FC = () => {
                 password: loginData.password
             };
 
-            const response = await login(loginPayload);
+            const response = await axios.post(`${config.API_BASE_URL}/api/auth/login`, loginData);
             
             if (response.data && response.data.user) {
                 const userData = {
@@ -497,7 +498,7 @@ const Header: React.FC = () => {
                 confirmPassword: '[REDACTED]'
             });
 
-            const response = await register(registerData);
+            const response = await axios.post(`${config.API_BASE_URL}/api/auth/register`, registerData);
             if (response.data) {
                 localStorage.setItem('user', JSON.stringify(response.data));
                 setShowRegisterModal(false);

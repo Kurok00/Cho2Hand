@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './UserManagement.css';
 import axios from 'axios';
 import { getUsers, getAdmins, deleteUser, deleteAdmin, updateAdmin, createAdmin, getAdminByID } from '../../services/userService.ts';
+import config from '../../config';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -196,7 +197,7 @@ function UserManagement() {
 
   const handleAddUser = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users', {
+      const response = await axios.post(`${config.API_BASE_URL}/api/users`, {
         ...newUser,
         status: newUser.status || 'active' // Ensure default status is 'active'
       });
@@ -246,12 +247,12 @@ function UserManagement() {
   
   const handleEditUser = async () => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/users/${currentUserId}`, newUser);
+      const response = await axios.put(`${config.API_BASE_URL}/api/users/${currentUserId}`, newUser);
       setUsers(users.map(user => user._id === currentUserId ? response.data : user));
       setShowUserModal(false);
       resetForm();
     } catch (err) {
-      setError('Có lỗi xảy ra khi s��a người dùng: ' + (err.response?.data?.error || err.message));
+      setError('Có lỗi xảy ra khi sửa người dùng: ' + (err.response?.data?.error || err.message));
     }
   };
 

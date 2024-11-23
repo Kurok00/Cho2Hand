@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ProductManagement.css';
-
-
+import config from '../../config';
 
 function ProductManagement() {
 	const [products, setProducts] = useState([]);
@@ -60,7 +59,7 @@ function ProductManagement() {
 
 		const fetchCategories = async () => {
 			try {
-				const response = await axios.get('http://localhost:5000/api/categories');
+				const response = await axios.get(`${config.API_BASE_URL}/api/categories`);
 				if (response.status === 200 && Array.isArray(response.data.data)) {
 					setCategories(response.data.data);
 				} else {
@@ -80,7 +79,7 @@ function ProductManagement() {
 	const handleStatusChange = async () => {
 		if (!productToChangeStatus) return;
 		try {
-			const endpoint = `http://localhost:5000/api/products/${productToChangeStatus._id}/status`;
+			const endpoint = `${config.API_BASE_URL}/api/products/${productToChangeStatus._id}/status`;
 			const response = await axios.put(
 				endpoint,
 				{ status: newStatus },
