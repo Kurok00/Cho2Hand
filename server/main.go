@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"cho2hand/configs"
 	"cho2hand/controllers"
 	"cho2hand/middleware"
@@ -11,12 +12,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-
 func main() {
 	// Load environment variables from .env file
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	// Debug: Print environment variables
+	log.Println("MONGO_URI:", os.Getenv("MONGO_URI"))
+	log.Println("REDIS_URI:", os.Getenv("REDIS_URI"))
+	log.Println("PORT:", os.Getenv("PORT"))
+	log.Println("CLOUDINARY_CLOUD_NAME:", os.Getenv("CLOUDINARY_CLOUD_NAME"))
+	log.Println("CLOUDINARY_API_KEY:", os.Getenv("CLOUDINARY_API_KEY"))
+	log.Println("CLOUDINARY_API_SECRET:", os.Getenv("CLOUDINARY_API_SECRET"))
 
 	// Set up MongoDB connection
 	client, err := configs.ConnectMongoDB()
@@ -53,8 +61,12 @@ func main() {
 	)
 
 	// Start server with simple error handling
-	log.Println("Server starting on port 5000...")
-	if err := router.Run(":5000"); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
+	log.Println("Server starting on port", port)
+	if err := router.Run(":" + port); err != nil {
 		log.Fatal("Server error:", err)
 	}
 }
