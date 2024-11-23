@@ -1,20 +1,36 @@
+/* Container for the profile page */
 .profile-container {
-    padding: 20px;
     max-width: 800px;
     margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
 }
 
-.profile-info {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.profile-container h2 {
+    text-align: center;
+    color: #333;
     margin-bottom: 20px;
+}
+
+/* Styling for the profile information section */
+.profile-info, .products-list {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .profile-info p {
     margin: 10px 0;
-    font-size: 16px;
+    color: #555;
+}
+
+.profile-info p strong {
+    color: #333;
 }
 
 .products-list {
@@ -23,19 +39,51 @@
     gap: 20px;
 }
 
-.product-item {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.products-list .product-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+    text-align: center;
+    height: 100%;
 }
 
-.product-item h3 {
-    margin: 0 0 10px;
-    font-size: 18px;
+.products-list .product-item:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer; /* Add cursor pointer on hover */
 }
 
-.product-item p {
+.product-item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.product-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.product-details h3 {
+    margin: 10px 0;
+    color: #333;
+}
+
+.product-details p {
     margin: 5px 0;
-    font-size: 14px;
+    color: #555;
+}
+
+.product-details p strong {
+    color: #333;
 }

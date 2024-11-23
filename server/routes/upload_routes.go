@@ -23,11 +23,34 @@ func UploadRoute(router *mux.Router) {
         }
         defer file.Close()
 
+        // Generate hash for the file
+        hash, err := utils.GenerateFileHash(handler)
+        if err != nil {
+            w.WriteHeader(http.StatusInternalServerError)
+            json.NewEncoder(w).Encode(map[string]string{"error": "Error generating file hash"})
+            return
+        }
+
+        // Check Redis cache for existing image URL
+        cachedURL, err := utils.GetImageCache(hash)
+        if err == nil {
+            w.WriteHeader(http.StatusOK)
+            json.NewEncoder(w).Encode(map[string]string{"url": cachedURL})
+            return
+        }
+
         // Upload to Cloudinary
         imageURL, err := utils.UploadImage(handler)
         if err != nil {
             w.WriteHeader(http.StatusInternalServerError)
             json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+            return
+        }
+
+        // Store image URL in Redis cache
+        if err := utils.SetImageCache(hash, imageURL); err != nil {
+            w.WriteHeader(http.StatusInternalServerError)
+            json.NewEncoder(w).Encode(map[string]string{"error": "Error caching image URL"})
             return
         }
 

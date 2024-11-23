@@ -502,6 +502,7 @@ func (pc *ProductController) CreateProductWithPhoneDetails(c *gin.Context) {
 
 func (pc *ProductController) GetProductsByUserID(c *gin.Context) {
     userID := c.Param("userId")
+    log.Printf("Received request to get products for user ID: %s", userID)
     objID, err := primitive.ObjectIDFromHex(userID)
     if err != nil {
         log.Printf("Invalid user ID: %v\n", err)
@@ -527,6 +528,7 @@ func (pc *ProductController) GetProductsByUserID(c *gin.Context) {
         }
         product.CreatedAt = product.CreatedAt.In(location)
         product.UpdatedAt = product.UpdatedAt.In(location)
+        log.Printf("Product createdAt: %v\n", product.CreatedAt) // Log createdAt field
         products = append(products, product)
     }
 
@@ -536,5 +538,6 @@ func (pc *ProductController) GetProductsByUserID(c *gin.Context) {
         return
     }
 
+    log.Printf("Successfully fetched products for user ID: %s", userID)
     c.JSON(http.StatusOK, gin.H{"data": products})
 }

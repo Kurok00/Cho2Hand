@@ -230,11 +230,13 @@ const PostAd = () => {
         formData.append('image', image);
         
         try {
+            console.log('Uploading image to server...');
             const response = await axios.post('http://localhost:5000/api/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            console.log('Image uploaded successfully:', response.data.url);
             return response.data.url;
         } catch (error) {
             console.error('Error uploading image:', error);

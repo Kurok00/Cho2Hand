@@ -42,13 +42,6 @@ func calculateFileHash(file io.Reader) (string, error) {
     return hex.EncodeToString(hasher.Sum(nil)), nil
 }
 
-// Helper function to check if hash exists in Redis
-func checkImageHashExists(hash string) bool {
-    // Check if hash exists in Redis
-    _, err := redisClient.Get(ctx, "img:"+hash).Result()
-    return err == nil
-}
-
 // UploadImage uploads an image file to Cloudinary with better error logging and duplicate detection
 func UploadImage(file *multipart.FileHeader) (string, error) {
     // Initialize Cloudinary if needed
