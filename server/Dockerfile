@@ -20,7 +20,6 @@ WORKDIR /app
 RUN apk add --no-cache tzdata
 
 COPY --from=builder /app/main .
-COPY .env .
 
 # Verify the main executable and .env file are copied
 RUN ls -la /app
