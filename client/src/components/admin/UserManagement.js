@@ -18,16 +18,36 @@ function UserManagement() {
     email: '',
     phone: '',
     name: '',
-    status: 'active'
+    status: 'active' // Default status to 'active'
   });
   const [showDeleteUserModal, setShowDeleteUserModal] = useState(false);
   const [showDeleteAdminModal, setShowDeleteAdminModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [adminToDelete, setAdminToDelete] = useState(null);
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const fetchCityAndDistrict = async (user) => {
+    try {
+      const cityResponse = await axios.get(`http://localhost:5000/api/cities/${user.cityId}`);
+      const districtResponse = await axios.get(`http://localhost:5000/api/districts/${user.districtId}`);
+      return {
+        city: cityResponse.data.name,
+        district: districtResponse.data.name
+      };
+    } catch (error) {
+      console.error('Error fetching city and district:', error);
+      return {
+        city: 'N/A',
+        district: 'N/A'
+      };
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -36,8 +56,13 @@ function UserManagement() {
         getUsers(),
         getAdmins()
       ]);
-      
-      setUsers(Array.isArray(usersData) ? usersData : []);
+
+      const usersWithLocation = await Promise.all(usersData.map(async (user) => {
+        const location = await fetchCityAndDistrict(user);
+        return { ...user, ...location };
+      }));
+
+      setUsers(Array.isArray(usersWithLocation) ? usersWithLocation : []);
       setAdmins(Array.isArray(adminsData) ? adminsData : []);
       setError(null);
     } catch (err) {
@@ -47,6 +72,41 @@ function UserManagement() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/cities');
+        setCities(response.data.data);
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (newUser.cityId) {
+        try {
+          const response = await axios.get(`http://localhost:5000/api/districts/city/${newUser.cityId}`);
+          setDistricts(response.data.data);
+        } catch (error) {
+          console.error('Error fetching districts:', error);
+          setDistricts([]);
+        }
+      } else {
+        setDistricts([]);
+      }
+    };
+
+    fetchDistricts();
+  }, [newUser.cityId]);
+
+  useEffect(() => {
+    setFilteredDistricts(districts.filter(district => district.city_id === newUser.cityId));
+  }, [districts, newUser.cityId]);
 
   const openEditModal = async (user) => {
     try {
@@ -62,7 +122,9 @@ function UserManagement() {
         email: user.email,
         phone: user.phone,
         name: user.name,
-        status: user.status
+        status: user.status || 'active', // Ensure default status is 'active'
+        cityId: user.cityId || '',
+        districtId: user.districtId || ''
       });
       setCurrentUserId(userId);
       setIsEditing(true);
@@ -134,7 +196,10 @@ function UserManagement() {
 
   const handleAddUser = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users', newUser);
+      const response = await axios.post('http://localhost:5000/api/users', {
+        ...newUser,
+        status: newUser.status || 'active' // Ensure default status is 'active'
+      });
       setUsers([...users, response.data]);
       setShowUserModal(false);
       resetForm();
@@ -145,7 +210,10 @@ function UserManagement() {
 
   const handleAddAdmin = async () => {
     try {
-      const response = await createAdmin(newUser);
+      const response = await createAdmin({
+        ...newUser,
+        status: newUser.status || 'active' // Ensure default status is 'active'
+      });
       if (!response || !response.id) {
         throw new Error('Invalid response data');
       }
@@ -183,7 +251,7 @@ function UserManagement() {
       setShowUserModal(false);
       resetForm();
     } catch (err) {
-      setError('Có lỗi xảy ra khi sửa người dùng: ' + (err.response?.data?.error || err.message));
+      setError('Có lỗi xảy ra khi s��a người dùng: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -241,6 +309,8 @@ function UserManagement() {
                     <th>Username</th>
                     <th>Email</th>
                     <th>Số điện thoại</th>
+                    <th>Thành phố</th>
+                    <th>Quận/Huyện</th>
                     <th>Trạng thái</th>
                     <th>Thao tác</th>
                   </tr>
@@ -252,8 +322,10 @@ function UserManagement() {
                       <td>{user.username}</td>
                       <td>{user.email}</td>
                       <td>{user.phone || 'N/A'}</td>
+                      <td>{user.city || 'N/A'}</td>
+                      <td>{user.district || 'N/A'}</td>
                       <td>
-                        <span className={`status ${user.status}`}>
+                        <span className={`status ${user.status || 'active'}`}>
                           {user.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
                         </span>
                       </td>
@@ -333,12 +405,12 @@ function UserManagement() {
           <div className="modal-content">
             <h2>{isEditing ? 'Sửa người dùng' : 'Thêm người dùng mới'}</h2>
             <label>
-              Tên đăng nhập:
-              <input type="text" name="username" value={newUser.username} onChange={handleInputChange} />
+              Họ và tên:
+              <input type="text" name="name" value={newUser.name} onChange={handleInputChange} />
             </label>
             <label>
-              Mật khẩu:
-              <input type="text" name="password" value={newUser.password} onChange={handleInputChange} />
+              Tên đăng nhập:
+              <input type="text" name="username" value={newUser.username} onChange={handleInputChange} />
             </label>
             <label>
               Email:
@@ -349,8 +421,30 @@ function UserManagement() {
               <input type="text" name="phone" value={newUser.phone} onChange={handleInputChange} />
             </label>
             <label>
-              Tên hiển thị:
-              <input type="text" name="name" value={newUser.name} onChange={handleInputChange} />
+              Thành phố:
+              <select name="cityId" value={newUser.cityId} onChange={handleInputChange}>
+                <option value="">Chọn thành phố</option>
+                {cities.map(city => (
+                  <option key={city.id} value={city.id}>{city.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Quận/Huyện:
+              <select name="districtId" value={newUser.districtId} onChange={handleInputChange} disabled={!newUser.cityId}>
+                <option value="">Chọn quận/huyện</option>
+                {filteredDistricts.map(district => (
+                  <option key={district.id} value={district.id}>{district.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Mật khẩu:
+              <input type="password" name="password" value={newUser.password} onChange={handleInputChange} />
+            </label>
+            <label>
+              Xác nhận mật khẩu:
+              <input type="password" name="confirmPassword" value={newUser.confirmPassword} onChange={handleInputChange} />
             </label>
             <div className="modal-actions">
               <button onClick={isEditing ? handleEditUser : handleAddUser}>

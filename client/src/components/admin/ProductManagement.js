@@ -188,7 +188,7 @@ function ProductManagement() {
 			};
 			console.log('Product to add:', productToAdd); // Log the product payload
 			const response = await axios.post('http://localhost:5000/api/products', productToAdd);
-			setProducts([...products, response.data]);
+			setProducts([response.data, ...products]); // Add new product to the top of the list
 			setShowAddModal(false);
 		} catch (err) {
 			console.error('Error adding product:', err.response ? err.response.data : err.message); // Log the error response

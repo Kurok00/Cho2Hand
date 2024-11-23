@@ -16,7 +16,7 @@
 .filters {
     margin: 20px 0;
     display: flex; /* Flexbox for better alignment */
-    justify-content: space-between; /* Space between elements */
+    justify-content: center; /* Center the filters */
 }
 
 .filters select {
@@ -374,4 +374,9 @@
 .confirm-modal-content button:last-of-type {
     background-color: #f44336;
     color: white;
+}
+
+.dashboard-content {
+    width: 100%; /* Ensure it expands to fit the table */
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
 }

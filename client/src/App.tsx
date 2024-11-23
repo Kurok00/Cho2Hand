@@ -11,6 +11,7 @@ import UserManagement from './components/admin/UserManagement';
 import DetailProduct from './pages/DetailProduct';
 import CategoryProductPage from './pages/CategoryProductPage';
 import PostAd from './pages/PostAd';
+import Profile from './components/common/Profile/Profile';
 
 import './App.css';
 
@@ -34,6 +35,7 @@ const AppContent: React.FC = () => {
         <Route path="/product/:productId" element={<DetailProduct />} />
         <Route path="/category/:categoryName" element={<CategoryProductPage />} />
         <Route path="/post-sale" element={<PostAd />} />
+        <Route path="/profile" element={<Profile />} /> {/* Add profile route */}
       </Routes>
       {!isAdminRoute && <Footer />}
     </div>

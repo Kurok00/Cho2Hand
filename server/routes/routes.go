@@ -134,6 +134,8 @@ func SetupRoutes(router *gin.Engine, db *mongo.Database, authController *control
 
     // User product routes 
     router.GET("/api/users/:userId/products", productController.GetUserProducts)
+    // Ensure this route is included
+    router.GET("/api/products/user/:userId", productController.GetProductsByUserID)
 
     // Update upload route
     router.POST("/api/upload", func(c *gin.Context) {

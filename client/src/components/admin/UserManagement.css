@@ -8,9 +8,13 @@
 }
 
 .tables-container {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 30px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .table-section {
@@ -19,6 +23,7 @@
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
 }
 
 .users-table, .admins-table {
@@ -413,3 +418,25 @@ th {
     font-size: 14px;
   }
 }
+
+/* ...existing code... */
+
+.dashboard-content {
+  max-width: 2560px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Adjust table width and font size for better readability on larger screens */
+.table-section table {
+  width: 100%;
+  font-size: 16px;
+}
+
+.table-section th, .table-section td {
+  padding: 10px;
+  text-align: left;
+}
+
+/* ...existing code... */

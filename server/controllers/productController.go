@@ -429,7 +429,7 @@ func (pc *ProductController) CreateProductWithPhoneDetails(c *gin.Context) {
 
     // Bắt đầu một phiên giao dịch MongoDB
     session, err := pc.productCollection.Database().Client().StartSession()
-    if err != nil {
+    if (err != nil) {
         log.Printf("Error starting session: %v", err)
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Error starting database session"})
         return
@@ -498,4 +498,43 @@ func (pc *ProductController) CreateProductWithPhoneDetails(c *gin.Context) {
         "productId": request.Product.ID,
         "phoneDetailIds": request.Product.PhoneDetailIDs,
     })
+}
+
+func (pc *ProductController) GetProductsByUserID(c *gin.Context) {
+    userID := c.Param("userId")
+    objID, err := primitive.ObjectIDFromHex(userID)
+    if err != nil {
+        log.Printf("Invalid user ID: %v\n", err)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+
+    var products []models.Product
+    cursor, err := pc.productCollection.Find(context.Background(), bson.M{"user_id": objID})
+    if err != nil {
+        log.Printf("Error fetching products for user ID: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching products"})
+        return
+    }
+    defer cursor.Close(context.Background())
+
+    location, _ := time.LoadLocation("Asia/Bangkok")
+    for cursor.Next(context.Background()) {
+        var product models.Product
+        if err := cursor.Decode(&product); err != nil {
+            log.Printf("Error decoding product: %v\n", err)
+            continue
+        }
+        product.CreatedAt = product.CreatedAt.In(location)
+        product.UpdatedAt = product.UpdatedAt.In(location)
+        products = append(products, product)
+    }
+
+    if err := cursor.Err(); err != nil {
+        log.Printf("Cursor error: %v\n", err)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error reading products"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"data": products})
 }

@@ -4,7 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faSearch, faSignInAlt, faUserPlus, faMoon, faSun, faUser, faSignOutAlt, faPlusCircle, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { login, register } from '../../../services/authServices';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate, Link } from 'react-router-dom'; // Import useNavigate and Link
 import axios from 'axios'; // Import axios
 
 
@@ -534,6 +534,10 @@ const Header: React.FC = () => {
         }
     };
 
+    const handleProfileClick = () => {
+        navigate('/profile');
+    };
+
     return (
         <>
         <div className="header-container">
@@ -607,8 +611,7 @@ const Header: React.FC = () => {
                             </button>
                             {showUserDropdown && (
                                 <div className="user-dropdown">
-                                    <a href="/profile">Tài khoản của tôi</a>
-                                    <a href="/orders">Đơn hàng</a>
+                                    <Link to="/profile">Tài khoản của tôi</Link>
                                     <button onClick={handleLogout}>
                                         <FontAwesomeIcon icon={faSignOutAlt} />
                                         Đăng xuất
