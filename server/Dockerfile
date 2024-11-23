@@ -20,10 +20,8 @@ WORKDIR /app
 RUN apk add --no-cache tzdata
 
 COPY --from=builder /app/main .
-# Ensure the .env file is copied
-COPY server/.env .  
 
-# Verify the main executable and .env file are copied
+# Verify the main executable is copied
 RUN ls -la /app
 
 EXPOSE 5000
