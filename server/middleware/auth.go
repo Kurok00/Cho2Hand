@@ -2,37 +2,28 @@ package middleware
 
 import (
     "net/http"
+
     "github.com/gin-gonic/gin"
     "go.mongodb.org/mongo-driver/bson/primitive"
-    "log"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {
-        userIDStr := c.GetHeader("X-User-ID")
-        log.Printf("Received X-User-ID header: %s", userIDStr) // Add logging
-
-        if userIDStr == "" {
-            c.JSON(http.StatusUnauthorized, gin.H{
-                "error": "User ID not found in request header",
-                "details": "X-User-ID header is required",
-            })
+        userID := c.GetHeader("X-User-ID")
+        if userID == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID header is missing"})
             c.Abort()
             return
         }
 
-        userID, err := primitive.ObjectIDFromHex(userIDStr)
+        objID, err := primitive.ObjectIDFromHex(userID)
         if err != nil {
-            log.Printf("Error parsing user ID: %v", err) // Add logging
-            c.JSON(http.StatusUnauthorized, gin.H{
-                "error": "Invalid user ID format",
-                "details": err.Error(),
-            })
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
             c.Abort()
             return
         }
 
-        c.Set("userID", userID)
+        c.Set("userID", objID)
         c.Next()
     }
 }

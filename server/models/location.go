@@ -8,15 +8,42 @@ import (
 )
 
 type Location struct {
-    ID          primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
+    ID          primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
     CityID      primitive.ObjectID `bson:"city_id" json:"city_id"`
     DistrictID  primitive.ObjectID `bson:"district_id" json:"district_id"`
-    City        *City             `bson:"city,omitempty" json:"city,omitempty"`
-    District    *District         `bson:"district,omitempty" json:"district,omitempty"`
+    City        *City              `bson:"city,omitempty" json:"city,omitempty"`
+    District    *District          `bson:"district,omitempty" json:"district,omitempty"`
 }
 
 type LocationService struct {
     db *mongo.Database
+}
+
+// Add LocationRequest for handling JSON requests
+type LocationRequest struct {
+    CityID      string `json:"city_id"`
+    DistrictID  string `json:"district_id"`
+    CityName    string `json:"city_name"`
+    DistrictName string `json:"district_name"`
+}
+
+// Add method to convert LocationRequest to Location
+func (lr *LocationRequest) ToLocation() (*Location, error) {
+    cityID, err := primitive.ObjectIDFromHex(lr.CityID)
+    if err != nil {
+        return nil, err
+    }
+    
+    districtID, err := primitive.ObjectIDFromHex(lr.DistrictID)
+    if err != nil {
+        return nil, err
+    }
+
+    return &Location{
+        ID: primitive.NewObjectID(),
+        CityID: cityID,
+        DistrictID: districtID,
+    }, nil
 }
 
 func NewLocationService(db *mongo.Database) *LocationService {

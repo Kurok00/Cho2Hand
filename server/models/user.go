@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 	"time"
-	"go.mongodb.org/mongo-driver/bson" // Add this import
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -30,7 +30,7 @@ type Login struct {
 
 type UserService struct {
 	db              *mongo.Database
-	locationService *LocationService // Add this field
+	locationService *LocationService
 }
 
 func NewUserService(db *mongo.Database) *UserService {
@@ -44,7 +44,7 @@ func NewUserService(db *mongo.Database) *UserService {
 func (us *UserService) CreateUserWithLocation(user *User, cityID, districtID string) error {
 	// Create location first
 	location, err := us.locationService.CreateLocationForUser(cityID, districtID)
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 

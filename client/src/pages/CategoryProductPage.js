@@ -188,8 +188,15 @@ const CategoryProductPage = () => {
                                                 
                                                 <div className="location-wrapper">
                                                     <IoLocationOutline className="location-icon" />
-                                                    <p className="product-location">{product.location}</p>
+                                                    <p className="product-location">
+                                                        {product.location.city.name}, {product.location.district.name}
+                                                    </p>
                                                 </div>
+                                                <p className="product-created-at">
+                                                    {new Date(product.created_at).toLocaleDateString('vi-VN', {
+                                                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                                                    })}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>

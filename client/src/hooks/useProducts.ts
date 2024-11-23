@@ -1,5 +1,30 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Product } from '../types/product';
+import axios from 'axios';
+
+interface Location {
+  city_id: string;
+  district_id: string;
+  city: {
+    _id: string;
+    name: string;
+  };
+  district: {
+    _id: string;
+    name: string;
+  };
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  images: string[];
+  location: Location;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const useProducts = (category?: string) => {
     const [products, setProducts] = useState<Product[]>([]);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PostAd.css';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
 
 interface Category {
     _id: string;
@@ -13,12 +13,9 @@ interface Product {
     description: string;
     category: string;
     price: number;
-    location: Location;  // Update to use the Location interface
+    location: Location;
     status: string;
     images: string[];
-    imagesMini1: string[];
-    imagesMini2: string[][];
-    imagesMini3: string[];
 }
 
 interface PhoneDetail {
@@ -29,16 +26,17 @@ interface PhoneDetail {
     ram: string;
 }
 
-// Update the Location interface to match server model
 interface Location {
-    city: {
-        _id: string;  // Change id to _id
+    _id?: string;
+    city_id: string;
+    district_id: string;
+    city?: {
+        _id: string;
         name: string;
     };
-    district: {
-        _id: string;  // Change id to _id
+    district?: {
+        _id: string;
         name: string;
-        city_id: string;
     };
 }
 
@@ -64,29 +62,37 @@ const formatCurrency = (amount: number): string => {
 };
 
 const PostAd = () => {
-    const navigate = useNavigate(); // Add this line
+    const navigate = useNavigate();
     const [product, setProduct] = useState<Product>({
         name: '',
         description: '',
         category: '',
         price: 0,
-        location: {  // Initialize with empty location object
+        location: {
+            city_id: '',
+            district_id: '',
             city: {
-                _id: '',  // Change id to _id
+                _id: '',
                 name: ''
             },
             district: {
-                _id: '',  // Change id to _id
-                name: '',
-                city_id: ''
+                _id: '',
+                name: ''
             }
         },
         status: 'available',
-        images: [],
-        imagesMini1: [],
-        imagesMini2: [[]],
-        imagesMini3: []
+        images: []
     });
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (/^\d*$/.test(value)) {
+            setProduct({
+                ...product,
+                price: parseInt(value, 10) || 0,
+            });
+        }
+    };
 
     const [phoneDetail, setPhoneDetail] = useState<PhoneDetail>({
         color: '',
@@ -97,14 +103,10 @@ const PostAd = () => {
     });
 
     const [categories, setCategories] = useState<Category[]>([]);
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
-    const [selectedImagesMini1, setSelectedImagesMini1] = useState<File[]>([]);
-    const [selectedImagesMini2, setSelectedImagesMini2] = useState<File[]>([]);
-    const [selectedImagesMini3, setSelectedImagesMini3] = useState<File[]>([]);
+    const [selectedImages, setSelectedImages] = useState<(File | null)[]>([null, null, null, null, null]);
     const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
     useEffect(() => {
-        // Fetch categories from API
         const fetchCategories = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/api/categories');
@@ -116,7 +118,7 @@ const PostAd = () => {
                 }
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                setCategories([]); // Ensure categories is an array even if the fetch fails
+                setCategories([]);
             }
         };
 
@@ -124,21 +126,77 @@ const PostAd = () => {
     }, []);
 
     useEffect(() => {
-        // Get user location from localStorage
         const savedLocation = localStorage.getItem('userLocation');
         if (savedLocation) {
             const location = JSON.parse(savedLocation);
             setUserLocation(location);
-            
-            // Set location in product form
             setProduct(prev => ({
                 ...prev,
                 location: {
-                    city: location.city,
-                    district: location.district
+                    city_id: location.city.id,
+                    district_id: location.district.id,
+                    city: {
+                        _id: location.city.id,
+                        name: location.city.name
+                    },
+                    district: {
+                        _id: location.district.id,
+                        name: location.district.name
+                    }
                 }
             }));
         }
+    }, []);
+
+    useEffect(() => {
+        const fetchUserLocation = async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                console.log('Fetched user from localStorage:', user); // Log user data
+                if (!user._id && !user.id) {
+                    throw new Error('User ID is missing');
+                }
+                const userId = user._id || user.id;
+                const response = await axios.get('http://localhost:5000/api/users/location', {
+                    headers: {
+                        'X-User-ID': userId
+                    }
+                });
+                const location = response.data;
+                setUserLocation(location);
+                setProduct(prev => ({
+                    ...prev,
+                    location: {
+                        city_id: location.city.id,
+                        district_id: location.district.id,
+                        city: {
+                            _id: location.city.id,
+                            name: location.city.name
+                        },
+                        district: {
+                            _id: location.district.id,
+                            name: location.district.name
+                        }
+                    }
+                }));
+            } catch (error) {
+                console.error('Error fetching user location:', error);
+            }
+        };
+
+        fetchUserLocation();
+    }, []);
+
+    useEffect(() => {
+        const refetchUser = () => {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            console.log('Refetched user from localStorage:', user); // Log user data
+            if (!user._id && !user.id) {
+                console.error('User ID is missing');
+            }
+        };
+
+        refetchUser();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -157,32 +215,15 @@ const PostAd = () => {
         });
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedImage(e.target.files[0]);
+            const newSelectedImages = [...selectedImages];
+            newSelectedImages[index] = e.target.files[0];
+            setSelectedImages(newSelectedImages);
         }
     };
 
-    const handleImagesMini1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setSelectedImagesMini1(Array.from(e.target.files));
-        }
-    };
-
-    const handleImagesMini2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setSelectedImagesMini2(Array.from(e.target.files));
-        }
-    };
-
-    const handleImagesMini3Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setSelectedImagesMini3(Array.from(e.target.files));
-        }
-    };
-
-    // Update image upload handlers
-    const handleMainImageUpload = async (image: File | null) => {
+    const handleImageUpload = async (image: File | null) => {
         if (!image) return null;
         
         const formData = new FormData();
@@ -201,11 +242,14 @@ const PostAd = () => {
         }
     };
 
-    const uploadMultipleImages = async (images: File[]): Promise<string[]> => {
+    const uploadMultipleImages = async (images: (File | null)[]): Promise<string[]> => {
         try {
             const uploadPromises = images.map(async (image) => {
-                const url = await handleMainImageUpload(image);
-                return url;
+                if (image) {
+                    const url = await handleImageUpload(image);
+                    return url;
+                }
+                return null;
             });
             
             const urls = await Promise.all(uploadPromises);
@@ -216,7 +260,6 @@ const PostAd = () => {
         }
     };
 
-    // Update submit handler
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -224,31 +267,33 @@ const PostAd = () => {
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const userLocation = JSON.parse(localStorage.getItem('userLocation') || '{}');
             
-            // Basic validation
+            console.log('User ID:', user._id || user.id); // Log user ID
+
+            if (!user._id && !user.id) {
+                throw new Error('User ID is missing');
+            }
+
+            const userId = user._id || user.id;
+
             if (!product.name || !product.description || !product.price) {
                 throw new Error('Please fill all required fields');
             }
 
-            // Upload images
-            const mainImageUrl = selectedImage ? await handleMainImageUpload(selectedImage) : null;
-            const mini1Urls = await uploadMultipleImages(selectedImagesMini1);
-            const mini2Urls = await uploadMultipleImages(selectedImagesMini2);
-            const mini3Urls = await uploadMultipleImages(selectedImagesMini3);
+            const imageUrls = await uploadMultipleImages(selectedImages);
 
-            // Format location data to match server expectations
             const formattedLocation = {
+                city_id: userLocation.city.id,
+                district_id: userLocation.district.id,
                 city: {
-                    _id: userLocation.city.id,  // Change from id to _id
+                    _id: userLocation.city.id,
                     name: userLocation.city.name
                 },
                 district: {
-                    _id: userLocation.district.id,  // Change from id to _id
-                    name: userLocation.district.name,
-                    city_id: userLocation.district.city_id
+                    _id: userLocation.district.id,
+                    name: userLocation.district.name
                 }
             };
 
-            // Prepare phone details
             const phoneDetailsData = product.category === 'Điện thoại' ? {
                 color: phoneDetail.color,
                 storage: phoneDetail.storage,
@@ -256,41 +301,40 @@ const PostAd = () => {
                 model: phoneDetail.model,
                 ram: phoneDetail.ram,
                 quantity: 1,
-                price: product.price  // Remove parseFloat since product.price is already a number
+                price: product.price
             } : null;
 
-            // Prepare payload with formatted location
             const payload = {
                 product: {
                     ...product,
                     price: parseInt(product.price.toString(), 10),
-                    images: mainImageUrl ? [mainImageUrl] : [],
-                    imagesMini1: mini1Urls,
-                    imagesMini2: mini2Urls,
-                    imagesMini3: mini3Urls,
-                    location: formattedLocation  // Use formatted location
+                    images: imageUrls,
+                    location: formattedLocation
                 },
                 phoneDetails: phoneDetailsData ? [phoneDetailsData] : []
             };
 
-            console.log('Sending payload:', payload); // Debug log
+            console.log('Sending payload:', payload);
 
-            // Send request with user ID header
             const response = await axios.post(
                 'http://localhost:5000/api/products/with-phone-details',
                 payload,
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-User-ID': user._id
+                        'X-User-ID': userId
                     }
                 }
             );
 
+            console.log('Request headers:', {
+                'Content-Type': 'application/json',
+                'X-User-ID': userId
+            });
+
             if (response.status === 200 || response.status === 201) {
                 console.log('Product created successfully:', response.data);
-                // Navigate to product detail page or show success message
-                navigate(`/product/${response.data.productId}`); // Now this will work
+                navigate(`/product/${response.data.productId}`);
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -298,7 +342,6 @@ const PostAd = () => {
             } else {
                 console.error('Error:', error);
             }
-            // Show error to user
         }
     };
 
@@ -332,13 +375,11 @@ const PostAd = () => {
                     <div className="form-group">
                         <label>Price (VND):</label>
                         <input 
-                            type="number" 
+                            type="text" 
                             name="price" 
-                            value={product.price} 
-                            onChange={handleChange}
+                            value={product.price.toString()} 
+                            onChange={handlePriceChange}
                             placeholder="Enter price in VND"
-                            min="0"
-                            step="1000"
                         />
                         {product.price > 0 && (
                             <div className="price-display">
@@ -359,29 +400,23 @@ const PostAd = () => {
 
                     <div className="form-group full-width">
                         <div className="image-upload-section">
-                            <label>Main Image</label>
-                            <input type="file" name="image" onChange={handleImageChange} />
-                            {selectedImage && (
-                                <div className="image-preview-grid">
-                                    <div className="image-preview-item">
-                                        <img src={URL.createObjectURL(selectedImage)} alt="Preview" />
+                            <label>Images (up to 5)</label>
+                            <div className="image-upload-grid">
+                                {selectedImages.map((image, index) => (
+                                    <div key={index} className="image-upload-item">
+                                        {image ? (
+                                            <div className="image-preview-item">
+                                                <img src={URL.createObjectURL(image)} alt={`Preview ${index + 1}`} />
+                                            </div>
+                                        ) : (
+                                            <div className="image-placeholder">
+                                                <input type="file" onChange={handleImageChange(index)} />
+                                                <span>Click to select image</span>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <div className="image-upload-section">
-                            <label>Additional Images 1</label>
-                            <input type="file" name="imagesMini1" multiple onChange={handleImagesMini1Change} />
-                        </div>
-                    </div>
-
-                    <div className="form-group">
-                        <div className="image-upload-section">
-                            <label>Additional Images 2</label>
-                            <input type="file" name="imagesMini2" multiple onChange={handleImagesMini2Change} />
+                                ))}
+                            </div>
                         </div>
                     </div>
 

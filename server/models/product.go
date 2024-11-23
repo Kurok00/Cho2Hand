@@ -14,9 +14,9 @@ type Product struct {
     Price             int                `bson:"price" json:"price"`
     Images            []string           `bson:"images" json:"images"`
     Status            string             `bson:"status" json:"status" binding:"required,oneof=available sold"`
-    UserID            primitive.ObjectID `bson:"user_id" json:"user_id"`
+    UserID            primitive.ObjectID `bson:"user_id" json:"user_id"` // Ensure this field is present
     LocationID        primitive.ObjectID `bson:"location_id" json:"location_id"`
-    Location          *Location          `bson:"location,omitempty" json:"location,omitempty"`
+    Location          Location           `bson:"location" json:"location" binding:"required"` // Ensure this matches the expected structure
     CreatedAt         time.Time          `bson:"created_at" json:"created_at"`
     UpdatedAt         time.Time          `bson:"updated_at" json:"updated_at"`
     PhoneDetailIDs    []primitive.ObjectID `bson:"phoneDetailIds" json:"phoneDetailIds"`

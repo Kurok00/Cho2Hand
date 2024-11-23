@@ -10,6 +10,31 @@ interface Category {
   image: string;
 }
 
+interface Location {
+  city_id: string;
+  district_id: string;
+  city: {
+    _id: string;
+    name: string;
+  };
+  district: {
+    _id: string;
+    name: string;
+  };
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  images: string[];
+  location: Location;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const BodyComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,6 +129,9 @@ const BodyComponent: React.FC = () => {
                     }}
                   />
                   <span className="product-name">{product.name}</span>
+                  <span className="product-location">
+                    {product.location?.district?.name}, {product.location?.city?.name}
+                  </span>
                   <div className="product-info">
                     <span className="price">
                       {new Intl.NumberFormat('vi-VN', {
@@ -113,7 +141,6 @@ const BodyComponent: React.FC = () => {
                         maximumFractionDigits: 0
                       }).format(product.price)}
                     </span>
-                    <span className="location">{product.location}</span>
                   </div>
                 </Link>
               ))

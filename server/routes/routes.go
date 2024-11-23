@@ -61,6 +61,15 @@ func SetupRoutes(router *gin.Engine, db *mongo.Database, authController *control
     // Use the proper CORS middleware
     router.Use(middleware.CORSMiddleware())
 
+    // Apply AuthMiddleware to routes that require user authentication
+    authRoutes := router.Group("/")
+    authRoutes.Use(middleware.AuthMiddleware())
+    {
+        authRoutes.POST("/api/products/with-phone-details", productController.CreateProductWithPhoneDetails)
+        authRoutes.GET("/api/users/location", userController.GetUserLocation)
+        // ...other routes that require authentication...
+    }
+
     // City routes
     router.GET("/api/cities", cityController.GetCities)
 
@@ -199,8 +208,10 @@ func SetupRoutes(router *gin.Engine, db *mongo.Database, authController *control
     // Add debug logging
     log.Println("Registering route: POST /api/products/with-phone-details")
     // Add new route for creating product with phone details
-    router.POST("/api/products/with-phone-details", productController.CreateProductWithPhoneDetails)
+    // This route is already defined in the authRoutes group, so remove this duplicate
+    // router.POST("/api/products/with-phone-details", productController.CreateProductWithPhoneDetails)
 
     // Add new route for getting user location
-    router.GET("/api/users/location", middleware.AuthMiddleware(), userController.GetUserLocation)
+    // This route is already defined in the authRoutes group, so remove this duplicate
+    // router.GET("/api/users/location", middleware.AuthMiddleware(), userController.GetUserLocation)
 }

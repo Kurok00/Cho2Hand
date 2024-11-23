@@ -84,28 +84,43 @@
     border-color: #007bff;
 }
 
-/* Product Grid Container */
+/* Override styles for tin-dang-container */
 .tin-dang-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px !important; /* Ensure spacing between product cards */
     padding: 20px 0;
 }
 
+/* Override styles for tin-dang-ban */
 .tin-dang-ban {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px !important; /* Ensure spacing between product cards */
+    width: 100%;
 }
 
-/* Product Card Styles */
+/* Override styles for product-card */
 .product-card {
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;  /* Add this */
-    border: none; /* Remove default border if any */
-    padding-bottom: 15px;
+    position: relative;
+    border: none;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left; /* Align text to the left */
+    margin-bottom: 20px !important; /* Ensure spacing between product cards */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Remove the existing ::after pseudo-element */
@@ -146,81 +161,53 @@
     border-left-color: #45a049;
 }
 
+/* Override styles for productImageDiv */
 .productImageDiv {
-    position: relative;
     width: 100%;
-    padding-top: 75%; /* 4:3 Aspect Ratio */
+    height: 200px;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.product-image {
-    position: absolute;
-    top: 0;
-    left: 0;
+.productImageDiv img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s ease;
 }
 
-.product-card:hover .product-image {
-    transform: scale(1.05);
-}
-
+/* Override styles for descript */
 .descript {
-    padding: 15px 15px 0 15px; /* Adjust top/side padding, remove bottom padding */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .product-details {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    height: 100%;  /* Make it fill the container */
-    min-height: 140px;  /* Set minimum height to maintain consistent card sizes */
-    justify-content: space-between; /* Add this */
+    gap: 10px;
 }
 
 .product-name {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
     color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-height: 1.3;
 }
 
 .product-price {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #e94c2b;
-    margin: 0;
-    text-align: center; /* Add this */
-    padding: 8px 0; /* Add this */
+    font-size: 1rem;
+    color: #ee4d2d;
+    font-weight: 600;
 }
 
-.product-location {
+.product-location,
+.product-created-at {
     font-size: 0.9rem;
     color: #666;
     margin: 0;
-}
-
-.chat-button {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.chat-button:hover {
-    background-color: #45a049;
 }
 
 .location-wrapper {

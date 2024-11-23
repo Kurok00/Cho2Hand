@@ -289,6 +289,7 @@ const Header: React.FC = () => {
     const [districts, setDistricts] = useState<District[]>([]);
     const [showPassword, setShowPassword] = useState(false);
     const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+    const [searchQuery, setSearchQuery] = useState(''); // Add searchQuery state
     const navigate = useNavigate(); // Initialize useNavigate
 
     useEffect(() => {
@@ -462,7 +463,7 @@ const Header: React.FC = () => {
         } catch (err) {
             const error = err as ApiError;
             console.error('Login error:', error);
-            setError(error.response?.data?.error || 'Đăng nh��p thất bại. Vui lòng thử lại.');
+            setError(error.response?.data?.error || 'Đăng nhập thất bại. Vui lòng thử lại.');
         }
     };
 
@@ -521,6 +522,18 @@ const Header: React.FC = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const handleSearch = () => {
+        if (searchQuery.trim()) {
+            navigate(`/search?query=${searchQuery}`);
+        }
+    };
+
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
     return (
         <>
         <div className="header-container">
@@ -554,8 +567,15 @@ const Header: React.FC = () => {
                         type="text" 
                         placeholder="Tìm kiếm sản phẩm trên Chợ 2Hand" 
                         className="search" 
+                        value={searchQuery} // Bind searchQuery state
+                        onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
+                        onKeyPress={handleKeyPress} // Handle Enter key press
                     />
-                    <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                    <FontAwesomeIcon 
+                        icon={faSearch} 
+                        className="search-icon" 
+                        onClick={handleSearch} // Handle search icon click
+                    />
                 </div>
 
                 <div className="hdr-right">

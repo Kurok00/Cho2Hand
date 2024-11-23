@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
-// Sửa lại imports không cần .tsx
 import Header from './components/common/Header/Header';
 import Body from './components/common/Body/Body';
 import Footer from './components/common/Footer/Footer';
@@ -11,7 +10,7 @@ import CategoryManagement from './components/admin/CategoryManagement';
 import UserManagement from './components/admin/UserManagement';
 import DetailProduct from './pages/DetailProduct';
 import CategoryProductPage from './pages/CategoryProductPage';
-import PostSale from './pages/PostSale';
+import PostAd from './pages/PostAd';
 
 import './App.css';
 
@@ -34,7 +33,7 @@ const AppContent: React.FC = () => {
         <Route path="/" element={<UserHome />} />
         <Route path="/product/:productId" element={<DetailProduct />} />
         <Route path="/category/:categoryName" element={<CategoryProductPage />} />
-        <Route path="/post-sale" element={<PostSale />} />
+        <Route path="/post-sale" element={<PostAd />} />
       </Routes>
       {!isAdminRoute && <Footer />}
     </div>

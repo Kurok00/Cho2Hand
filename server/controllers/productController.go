@@ -50,7 +50,7 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 
     // Set product fields
     product.LocationID = userLocation.ID
-    product.Location = userLocation
+    product.Location = *userLocation  // Convert pointer to value
     product.UserID = userID
     product.CreatedAt = now
     product.UpdatedAt = now
@@ -412,6 +412,20 @@ func (pc *ProductController) CreateProductWithPhoneDetails(c *gin.Context) {
         })
         return
     }
+
+    // Get user's location from token
+    userID := c.MustGet("userID").(primitive.ObjectID)
+    locationService := models.NewLocationService(pc.db)
+    userLocation, err := locationService.GetLocationDetailsByUserID(userID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user location"})
+        return
+    }
+
+    // Set location in product
+    request.Product.LocationID = userLocation.ID
+    request.Product.Location = *userLocation
+    request.Product.UserID = userID // Ensure userID is set in the product
 
     // Bắt đầu một phiên giao dịch MongoDB
     session, err := pc.productCollection.Database().Client().StartSession()

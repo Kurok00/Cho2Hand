@@ -3,18 +3,20 @@
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    max-width: 1200px;
-    margin: 0 auto;
+    max-width: 1400px; /* Adjusted max-width for larger screens */
+    margin: 20px auto; /* Added margin for spacing */
 }
 
 .product-management h1 {
     color: #1a73e8; /* Changed to blue */
     margin-bottom: 25px;
-    font-size: 1.8rem;
+    font-size: 2.5rem; /* Increased font size */
 }
 
 .filters {
     margin: 20px 0;
+    display: flex; /* Flexbox for better alignment */
+    justify-content: space-between; /* Space between elements */
 }
 
 .filters select {
@@ -25,6 +27,7 @@
     color: #333;
     background-color: white;
     min-width: 200px;
+    margin-right: 10px; /* Added margin for spacing */
 }
 
 .add-btn {
@@ -35,7 +38,7 @@
     border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 10px; /* Adjusted margin */
     transition: all 0.3s ease;
 }
 
@@ -49,30 +52,72 @@
     border-collapse: collapse;
     margin-top: 20px;
     background-color: #fff;
-    border-radius: 8px;
+    border-radius: 10px; /* Increased border-radius */
     overflow: hidden;
+    table-layout: fixed; /* Ensure table fits within container */
 }
 
 .product-management th, .product-management td {
-    padding: 12px;
+    padding: 20px; /* Increased padding */
     vertical-align: middle;
     border-bottom: 1px solid #eee;
     text-align: left;
     border: 1px solid #ddd;
     vertical-align: top;
+    word-wrap: break-word; /* Ensure content wraps within cells */
+    text-align: center; /* Center align cells */
 }
 
 .product-management th {
-    background-color: #e3f2fd; /* Light blue background */
+    background-color: #f1f8ff; /* Lighter blue background */
     color: #1a73e8; /* Blue text */
     font-weight: bold;
+    text-align: center; /* Center align headers */
 }
 
 .product-management td {
-    padding: 12px;
+    padding: 20px; /* Increased padding */
     vertical-align: top;
     line-height: 1.4;
+    background-color: #fafafa; /* Light grey background */
+    text-align: center; /* Center align cells */
 }
+
+.product-management th:nth-child(1),
+.product-management td:nth-child(1) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(2),
+.product-management td:nth-child(2) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(3),
+.product-management td:nth-child(3) {
+    width: 40%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(4),
+.product-management td:nth-child(4) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(5),
+.product-management td:nth-child(5) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(6),
+.product-management td:nth-child(6) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
+.product-management th:nth-child(7),
+.product-management td:nth-child(7) {
+    width: 10%; /* Adjusted width for better alignment */
+}
+
 .product-management td.description-cell {
     max-width: 200px;
     max-height: 60px; /* Approximately 3 lines of text */
@@ -148,10 +193,11 @@
 }
 
 .product-management .product-image {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 4px;
+    width: 80px !important;
+    height: 80px !important;
+    object-fit: cover !important;
+    border-radius: 4px !important;
+    border: 1px solid #ddd !important; /* Added border */
 }
 
 .product-management .edit-btn, .product-management .delete-btn, .product-management .add-btn, .product-management .status-btn {
@@ -161,14 +207,14 @@
     cursor: pointer;
     font-size: 13px;
     transition: all 0.2s ease;
-    margin: 0 4px;
+    margin: 5px; /* Adjusted margin */
 }
 
 .product-management .edit-btn, 
 .product-management .status-btn {
     min-width: 120px;
     padding: 8px 12px;
-    margin: 4px;
+    margin: 5px; /* Adjusted margin */
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -212,6 +258,7 @@
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 20px; /* Added padding */
 }
 
 .edit-modal-content {
@@ -220,18 +267,19 @@
     border-radius: 8px;
     width: 500px;
     max-width: 90%;
-    max-height: 90vh;
+    max-height: 80vh; /* Adjusted max-height */
     overflow-y: auto;
 }
 
 .edit-modal-content h2 {
     margin-bottom: 20px;
     color: #2c3e50;
+    font-size: 1.5rem; /* Increased font size */
 }
 
 .edit-modal-content label {
     display: block;
-    margin-top: 12px;
+    margin-top: 10px; /* Adjusted margin */
     color: #4a5568;
     font-weight: bold;
 }
@@ -241,7 +289,7 @@
 .edit-modal-content textarea {
     width: 100%;
     padding: 8px;
-    margin: 8px 0;
+    margin: 10px 0; /* Adjusted margin */
     border: 1px solid #ddd;
     border-radius: 6px;
     font-size: 14px;
@@ -260,6 +308,7 @@
     font-size: 14px;
     margin-right: 10px;
     transition: all 0.3s ease;
+    margin-top: 10px; /* Added margin */
 }
 
 .edit-modal-content button:first-of-type {
@@ -294,12 +343,13 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px; /* Added padding */
 }
 
 .confirm-modal-content {
     background: white;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 10px; /* Increased border-radius */
     text-align: center;
 }
 
@@ -313,6 +363,7 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 10px; /* Added margin */
 }
 
 .confirm-modal-content button:first-of-type {
