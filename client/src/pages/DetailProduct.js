@@ -7,6 +7,10 @@ import Slider from "react-slick";
 
 import './DetailProduct.css';
 
+const config = {
+    API_BASE_URL: 'https://cho2hand-3.onrender.com' // Replace with your actual API base URL
+};
+
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id); // Custom validation function
 
 const formatCurrency = (amount) => {
@@ -34,7 +38,7 @@ const DetailProduct = () => {
                     throw new Error('Invalid product ID');
                 }
                 console.log('Fetching product with ID:', productId); // Log productId
-                const response = await axios.get(`http://localhost:5000/api/products/${productId}/phone-details`);
+                const response = await axios.get(`${config.API_BASE_URL}/api/products/${productId}/phone-details`);
                 const productData = response.data.product;
                 const phoneDetailsData = response.data.phoneDetails;
 
@@ -48,7 +52,7 @@ const DetailProduct = () => {
                 // Fetch similar products after getting product category
                 if (productData.category) {
                     console.log('Fetching similar products for category:', productData.category); // Log category
-                    const similarResponse = await axios.get(`http://localhost:5000/api/products/category/${productData.category}`);
+                    const similarResponse = await axios.get(`${config.API_BASE_URL}/api/products/category/${productData.category}`);
                     console.log('Fetched similar products response:', similarResponse.data); // Log the similar products response
                     // Filter out the current product and limit to 5 items
                     const filteredProducts = similarResponse.data.data
@@ -62,7 +66,7 @@ const DetailProduct = () => {
                 if (productData.user_id && isValidObjectId(productData.user_id)) {
                     try {
                         console.log('Fetching user phone with user_id:', productData.user_id); // Log the user_id
-                        const userResponse = await axios.get(`http://localhost:5000/api/users/${productData.user_id}/phone`);
+                        const userResponse = await axios.get(`${config.API_BASE_URL}/api/users/${productData.user_id}/phone`);
                         console.log('Fetched user phone response:', JSON.stringify(userResponse.data, null, 2)); // Log the entire user response
                         if (userResponse.data && userResponse.data.phone) {
                             console.log('User phone:', userResponse.data.phone); // Log the phone number

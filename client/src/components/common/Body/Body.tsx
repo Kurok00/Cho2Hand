@@ -4,6 +4,7 @@ import { useProducts } from '../../../hooks/useProducts';
 import './Body.css';
 import { Link, useNavigate } from 'react-router-dom';
 
+
 interface Category {
   id: string;
   name: string;
@@ -44,7 +45,7 @@ const BodyComponent: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://cho2hand-3.onrender.com';
         const response = await fetch(`${apiUrl}/api/categories`);
         if (!response.ok) {
           throw new Error(`Failed to fetch categories: ${response.statusText}`);

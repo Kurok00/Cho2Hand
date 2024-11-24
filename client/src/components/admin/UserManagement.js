@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import './UserManagement.css';
 import axios from 'axios';
-import { getUsers, getAdmins, deleteUser, deleteAdmin, updateAdmin, createAdmin, getAdminByID } from '../../services/userService.ts';
+import './UserManagement.css';
 import config from '../../config';
+
+import { getUsers, getAdmins, deleteUser, deleteAdmin, updateAdmin, createAdmin, getAdminByID } from '../../services/userService.ts';
 
 function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -35,8 +36,8 @@ function UserManagement() {
 
   const fetchCityAndDistrict = async (user) => {
     try {
-      const cityResponse = await axios.get(`http://localhost:5000/api/cities/${user.cityId}`);
-      const districtResponse = await axios.get(`http://localhost:5000/api/districts/${user.districtId}`);
+      const cityResponse = await axios.get(`https://cho2hand-3.onrender.com/api/cities/${user.cityId}`);
+      const districtResponse = await axios.get(`https://cho2hand-3.onrender.com/api/districts/${user.districtId}`);
       return {
         city: cityResponse.data.name,
         district: districtResponse.data.name
@@ -77,7 +78,7 @@ function UserManagement() {
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/cities');
+        const response = await axios.get('https://cho2hand-3.onrender.com/api/cities');
         setCities(response.data.data);
       } catch (error) {
         console.error('Error fetching cities:', error);
@@ -91,7 +92,7 @@ function UserManagement() {
     const fetchDistricts = async () => {
       if (newUser.cityId) {
         try {
-          const response = await axios.get(`http://localhost:5000/api/districts/city/${newUser.cityId}`);
+          const response = await axios.get(`https://cho2hand-3.onrender.com/api/districts/city/${newUser.cityId}`);
           setDistricts(response.data.data);
         } catch (error) {
           console.error('Error fetching districts:', error);
@@ -116,7 +117,7 @@ function UserManagement() {
         setError('Invalid user object');
         return;
       }
-      const response = await axios.get(`http://localhost:5000/api/users/${userId}/password`);
+      const response = await axios.get(`https://cho2hand-3.onrender.com/api/users/${userId}/password`);
       setNewUser({
         username: user.username,
         password: '',
@@ -155,7 +156,7 @@ function UserManagement() {
 
   const handleBlockUser = async (userId) => {
     try {
-      await axios.put(`http://localhost:5000/api/admin/users/${userId}`, { status: 'blocked' });
+      await axios.put(`https://cho2hand-3.onrender.com/api/admin/users/${userId}`, { status: 'blocked' });
       setUsers(users.map(user => user._id === userId ? { ...user, status: 'blocked' } : user));
     } catch (err) {
       setError('Có lỗi xảy ra khi khóa người dùng: ' + (err.response?.data?.error || err.message));

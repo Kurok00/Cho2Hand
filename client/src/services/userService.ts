@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api'; // Keep the port at 5000
+const API_URL = 'https://cho2hand-3.onrender.com/api'; // Keep the port at 5000
 
 // Add authentication headers
 const getAuthHeaders = () => {
@@ -72,7 +72,7 @@ export const updateAdmin = async (adminId: string, adminData: any) => {
 };
 
 export const createAdmin = async (adminData: any) => {
-  const response = await axios.post('http://localhost:5000/api/admins', adminData);
+  const response = await axios.post('https://cho2hand-3.onrender.com/api/admins', adminData);
   return response.data;
 };
 

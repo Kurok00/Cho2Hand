@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/admin/auth'; // Update the base URL to match the backend routes
+const API_URL = 'https://cho2hand-3.onrender.com/api/admin/auth'; // Update the base URL to match the backend routes
 
 const axiosInstance = axios.create({
     baseURL: API_URL,

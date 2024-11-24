@@ -312,7 +312,7 @@ const Header: React.FC = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/categories');
+                const response = await axios.get('https://cho2hand-3.onrender.com/api/categories');
                 setCategories(response.data.data);
             } catch (error) {
                 console.error('Error fetching categories:', error);
@@ -326,7 +326,7 @@ const Header: React.FC = () => {
         const fetchCities = async () => {
             if (showRegisterModal) {
                 try {
-                    const response = await axios.get('http://localhost:5000/api/cities');
+                    const response = await axios.get('https://cho2hand-3.onrender.com/api/cities');
                     console.log('Cities response:', response.data); // Debug log
                     if (response.data && Array.isArray(response.data.data)) {
                         const formattedCities = response.data.data.map((city: any) => ({
@@ -348,7 +348,7 @@ const Header: React.FC = () => {
         const fetchDistricts = async () => {
             if (registerData.cityId) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/districts/city/${registerData.cityId}`);
+                    const response = await axios.get(`https://cho2hand-3.onrender.com/api/districts/city/${registerData.cityId}`);
                     console.log('Districts response:', response.data); // Debug log
                     if (response.data && Array.isArray(response.data.data)) {
                         const formattedDistricts = response.data.data.map((district: any) => ({
@@ -376,7 +376,7 @@ const Header: React.FC = () => {
             if (savedUser) {
                 try {
                     const userData = JSON.parse(savedUser);
-                    const response = await axios.get('http://localhost:5000/api/users/location', {
+                    const response = await axios.get('https://cho2hand-3.onrender.com/api/users/location', {
                         headers: {
                             'X-User-ID': userData._id || userData.id // Try both _id and id
                         }
@@ -447,7 +447,7 @@ const Header: React.FC = () => {
                 setUser(userData);
                 
                 try {
-                    const locationResponse = await axios.get('http://localhost:5000/api/users/location', {
+                    const locationResponse = await axios.get('https://cho2hand-3.onrender.com/api/users/location', {
                         headers: {
                             'X-User-ID': userData._id || userData.id
                         }

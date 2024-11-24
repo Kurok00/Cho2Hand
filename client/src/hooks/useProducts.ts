@@ -37,8 +37,8 @@ export const useProducts = (category?: string) => {
             setError(null);
             
             const url = category 
-                ? `http://localhost:5000/api/products?category=${category}`
-                : 'http://localhost:5000/api/products';
+                ? `https://cho2hand-3.onrender.com/api/products?category=${category}`
+                : 'https://cho2hand-3.onrender.com/api/products';
             
             console.log('Fetching products from:', url);
             

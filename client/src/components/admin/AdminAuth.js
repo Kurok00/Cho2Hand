@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../services/adminAuthService.ts'; // Thay đổi import adminLogin thành login
+import { login } from '../../services/adminAuthService.ts';
 import { adminRegister } from '../../services/adminAuthService.ts';
 import './AdminAuth.css';
 import axios from 'axios';
-
+import config from '../../config';
 
 function AdminAuth() {
   const [activeTab, setActiveTab] = useState('login');
@@ -32,7 +32,7 @@ function AdminAuth() {
     setError('');
 
     try {
-        const response = await login({ // Thay đổi adminLogin thành login
+        const response = await login({
             usernameOrPhone: loginData.username,
             password: loginData.password
         });

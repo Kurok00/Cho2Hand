@@ -33,7 +33,7 @@ const CategoryProductPage = () => {
     useEffect(() => {
         const fetchCategoryProducts = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/products/category/${categoryName}`);
+                const response = await axios.get(`https://cho2hand-3.onrender.com/api/products/category/${categoryName}`);
                 const sortedProducts = sortProducts(response.data.data, sortType);
                 setProducts(sortedProducts);
                 setLoading(false);

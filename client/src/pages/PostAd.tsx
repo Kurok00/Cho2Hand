@@ -109,7 +109,7 @@ const PostAd = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/categories');
+                const response = await axios.get('https://cho2hand-3.onrender.com/api/categories');
                 if (Array.isArray(response.data.data)) {
                     setCategories(response.data.data);
                 } else {
@@ -157,7 +157,7 @@ const PostAd = () => {
                     throw new Error('User ID is missing');
                 }
                 const userId = user._id || user.id;
-                const response = await axios.get('http://localhost:5000/api/users/location', {
+                const response = await axios.get('https://cho2hand-3.onrender.com/api/users/location', {
                     headers: {
                         'X-User-ID': userId
                     }
@@ -231,7 +231,7 @@ const PostAd = () => {
         
         try {
             console.log('Uploading image to server...');
-            const response = await axios.post('http://localhost:5000/api/upload', formData, {
+            const response = await axios.post('https://cho2hand-3.onrender.com/api/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -319,7 +319,7 @@ const PostAd = () => {
             console.log('Sending payload:', payload);
 
             const response = await axios.post(
-                'http://localhost:5000/api/products/with-phone-details',
+                'https://cho2hand-3.onrender.com/api/products/with-phone-details',
                 payload,
                 {
                     headers: {

@@ -16,7 +16,7 @@ function CategoryManagement() {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/categories'); // Add this line
+            const response = await axios.get('https://cho2hand-3.onrender.com/api/categories'); // Add this line
             setCategories(response.data.data);
             // Lấy danh sách tên danh mục unique cho dropdown
             const uniqueCategories = [...new Set(response.data.data.map(cat => cat.name))];
@@ -30,11 +30,10 @@ function CategoryManagement() {
 
     const handleFileUpload = async (file) => {
         try {
-            console.log('Starting file upload...', file);
             const formData = new FormData();
             formData.append('image', file);
             
-            const response = await axios.post('http://localhost:5000/api/upload', formData, {
+            const response = await axios.post(`${config.API_BASE_URL}/api/upload`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

@@ -7,6 +7,7 @@ import ProductManagement from './ProductManagement';
 import { adminLogout } from '../../services/adminAuthService.ts';
 import CategoryManagement from './CategoryManagement';
 import UserManagement from './UserManagement';
+import config from '../../config';
 
 function AdminDashboard() {
 	const [showLogoutModal, setShowLogoutModal] = useState(false);

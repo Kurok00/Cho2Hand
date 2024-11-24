@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"cho2hand/configs"
 	"cho2hand/controllers"
@@ -33,6 +34,13 @@ func main() {
 	// Initialize Gin and controllers
 	router := gin.Default()
 	router.Use(middleware.CORSMiddleware())
+
+	// Handle root URL
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to Cho2Hand API",
+		})
+	})
 
 	// Initialize controllers with database
 	authController := controllers.NewAuthController(db)

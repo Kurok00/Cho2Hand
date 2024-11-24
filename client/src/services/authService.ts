@@ -1,4 +1,5 @@
 import axios from 'axios';
+import config from '../config';
 
 interface LoginCredentials {
   username: string;  // Thay đổi từ identifier sang username
@@ -8,7 +9,7 @@ interface LoginCredentials {
 
 export const login = async (credentials: LoginCredentials) => {
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
+    const response = await axios.post(`${config.API_BASE_URL}/api/auth/login`, {
       username: credentials.username,
       phone: credentials.phone,
       password: credentials.password
@@ -31,7 +32,7 @@ interface RegisterData {
 
 export const register = async (data: RegisterData) => {
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/register', data);
+    const response = await axios.post(`${config.API_BASE_URL}/api/auth/register`, data);
     return response;
   } catch (error) {
     throw error;

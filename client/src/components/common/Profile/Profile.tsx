@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'; // Replace useHistory with useNa
 import axios from 'axios';
 import './Profile.css';
 
+
 const Profile: React.FC = () => {
     const [user, setUser] = useState<any>(null); // State to store user data
     const [products, setProducts] = useState<any[]>([]); // State to store user's products
@@ -17,7 +18,7 @@ const Profile: React.FC = () => {
 
                 try {
                     console.log(`Fetching products for user ID: ${userData._id || userData.id}`); // Debug log
-                    const response = await axios.get(`http://localhost:5000/api/products/user/${userData._id || userData.id}`);
+                    const response = await axios.get(`https://cho2hand-3.onrender.com/api/products/user/${userData._id || userData.id}`);
                     console.log('Fetched products:', response.data.data); // Log fetched products
                     setProducts(response.data.data); // Set products data
                 } catch (error) {

@@ -46,7 +46,7 @@ function ProductManagement() {
 	useEffect(() => {
 		const fetchProducts = async () => {
 			try {
-				const response = await axios.get(`http://localhost:5000/api/products?status=${statusFilter}`);
+				const response = await axios.get(`https://cho2hand-3.onrender.com/api/products?status=${statusFilter}`);
 				const sortedProducts = Array.isArray(response.data.data) ? response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : []; // Ensure products is an array and sort by creation time
 				setProducts(sortedProducts);
 			} catch (err) {
@@ -91,7 +91,7 @@ function ProductManagement() {
 				// Reload products after status change
 				const fetchProducts = async () => {
 					try {
-						const response = await axios.get(`http://localhost:5000/api/products?status=${statusFilter}`);
+						const response = await axios.get(`https://cho2hand-3.onrender.com/api/products?status=${statusFilter}`);
 						const sortedProducts = Array.isArray(response.data.data) ? response.data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) : [];
 						setProducts(sortedProducts);
 					} catch (err) {
@@ -152,7 +152,7 @@ function ProductManagement() {
 			};
 
 			const response = await axios.put(
-				`http://localhost:5000/api/products/${currentProduct._id}`, 
+				`https://cho2hand-3.onrender.com/api/products/${currentProduct._id}`, 
 				productToUpdate,
 				{
 					headers: {
@@ -186,7 +186,7 @@ function ProductManagement() {
 				category: newProduct.category || "defaultCategory", // Ensure category is provided
 			};
 			console.log('Product to add:', productToAdd); // Log the product payload
-			const response = await axios.post('http://localhost:5000/api/products', productToAdd);
+			const response = await axios.post('https://cho2hand-3.onrender.com/api/products', productToAdd);
 			setProducts([response.data, ...products]); // Add new product to the top of the list
 			setShowAddModal(false);
 		} catch (err) {
